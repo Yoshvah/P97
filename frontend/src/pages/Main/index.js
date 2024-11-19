@@ -4,12 +4,11 @@ import Usersetting from "../Main/Component/usersetting";
 import ChatCard from "../Main/Component/ChatCard";
 import Profile from "../Main/Component/Profile";
 import Mook from "../Main/Component/Mook";
-import '../Main/index.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
+import { Route, Routes } from "react-router-dom";
+import "../Main/index.css";
 function Main({ selectedMenu, handleSelectMenu }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [currentPage, setCurrentPage] = useState('message'); // Default page
   const navigate = useNavigate();
 
   const toggleSidebar = () => {
@@ -17,24 +16,7 @@ function Main({ selectedMenu, handleSelectMenu }) {
   };
 
   const navigateTo = (menu) => {
-    handleSelectMenu(menu);
-    setCurrentPage(menu.toLowerCase());  // Set the current page state to the menu name
-    navigate(`/${menu.toLowerCase()}`); // Optionally navigate to the route (can be skipped if using only state-based rendering)
-  };
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'message':
-        return <ChatCard />;
-      case 'usersetting':
-        return <Usersetting />;
-      case 'profile':
-        return <Profile />;
-      case 'usermook':
-        return <Mook />;
-      default:
-        return <ChatCard />;  // Fallback to default page (ChatCard)
-    }
+    navigate(`/${menu}`);
   };
 
   return (
@@ -51,12 +33,12 @@ function Main({ selectedMenu, handleSelectMenu }) {
                   </a>
                   <ul className="dropdown-menu dropdown-menu-light text-small shadow">
                     <li>
-                      <a className="dropdown-item" onClick={() => navigateTo('Usersetting')}>
+                      <a className="dropdown-item" onClick={() => navigateTo('Mook/Usersetting')}>
                         Settings
                       </a>
                     </li>
                     <li>
-                      <a className="dropdown-item" onClick={() => navigateTo('Profile')}>
+                      <a className="dropdown-item" onClick={() => navigateTo('Mook/Profile')}>
                         Profile
                       </a>
                     </li>
@@ -72,7 +54,7 @@ function Main({ selectedMenu, handleSelectMenu }) {
                 <div className="flex-grow-1 d-flex flex-column justify-content-center">
                   <ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
                     <li className="nav-item">
-                      <a className="nav-link align-middle px-0 text-dark" onClick={() => navigateTo('message')}>
+                      <a className="nav-link align-middle px-0 text-dark" onClick={() => navigateTo('Mook/message')}>
                         <i className="fs-4 bi-house"></i>
                         <span className={`ms-1 ${isCollapsed ? "d-none" : ""}`}>Message</span>
                       </a>
@@ -106,10 +88,14 @@ function Main({ selectedMenu, handleSelectMenu }) {
                   </form>
                 </div>
               </nav>
-
-              {/* Render the current page based on the currentPage state */}
               <div className="containerr">
-                {renderPage()}
+                <Routes>
+                  <Route path="/" element={<ChatCard />} />
+                  <Route path="/message" element={<ChatCard />} />
+                  <Route path="Usersetting" element={<Usersetting/>}/>
+                  <Route path="Profile" element={<Profile />} />
+                  <Route path="Usermook" element={<Mook />} />
+                </Routes>
               </div>
             </div>
           </div>
