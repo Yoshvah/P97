@@ -1,0 +1,68 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+/*     background: linear-gradient(to right, #56CCF2, #2F80ED); */
+    background-color: #fff;
+  }
+  
+  .logo {
+    color: black;
+    font-size: 1.5rem;
+    margin-left: 20px;
+  }
+  
+  .nav {
+    display: flex;
+    margin-right: 180px;
+  }
+  
+  /* Liens de navigation */
+  .nav-link {
+    color: black;
+    margin-left: 20px;
+    text-decoration: none;
+    font-size: 1.2rem;
+    padding-bottom: 5px;
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  
+  /* Effet de survol avec soulignement */
+  .nav-link:hover {
+    color: rgb(19, 8, 1); /* Couleur bleue lors du survol */
+ 
+  }
+  
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: rgb(19, 1, 1);
+    bottom: -5px;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  .nav-link:hover::after {
+  
+    transform: scaleX(1);
+  }
+  
+  /* Lien actif */
+  .nav-link.active {
+    color: rgb(31, 103, 219); /* Rouge pour le lien actif */
+  }
+  
+  .nav-link.active::after {
+    width: 100%;
+    background-color: rgb(3, 30, 41); /* Ligne rouge pour le lien actif */
+  }
+  .nav2 {
+    display: flex;
+    margin-right: 5px;
+  }
+  

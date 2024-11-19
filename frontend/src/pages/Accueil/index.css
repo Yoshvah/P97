@@ -1,0 +1,182 @@
+/* General section styling */
+.slider {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 50px;
+    margin-top: 0;
+    background-color: #f9f9f9; /* Light background for contrast */
+  }
+  
+  /* Left text content */
+  .text-content {
+    flex: 1;
+    max-width: 50%; /* Ensure it doesn't exceed half the screen */
+    text-align: left;
+  }
+  
+  .h3 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .h1 {
+    font-size: 48px;
+    color: #0a2fd6;
+    margin-top: 0;
+    margin-bottom: 30px;
+  }
+  
+  /* Right image content */
+  .image-content {
+    flex: 1;
+    max-width: 50%;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .logo1 {
+    width: 80%;
+    height: auto;
+  }
+  
+  /* Button styles with hover outline */
+  .submit-btn2 {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #2d9cdb;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, outline 0.3s ease;
+  }
+  
+  /* Hover effect using Bootstrap's outline-like style */
+  .submit-btn2:hover {
+    background-color: #1a73e8;
+    outline: 2px solid #1a73e8;
+    outline-offset: 2px;
+  }
+  
+  /* Responsive Design */
+  @media screen and (max-width: 768px) {
+    .slider {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      height: 70vh;
+    }
+  
+    .text-content, .image-content {
+      max-width: 100%; /* Full width for smaller screens */
+    }
+  
+    .image-content {
+      margin-top: 20px;
+    }
+  
+    #txt {
+      font-size: 36px;
+    }
+  
+    .h3 {
+      font-size: 20px;
+    }
+  
+    .logo1 {
+      width: 100%;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    #txt {
+      font-size: 28px;
+    }
+  
+    .h3 {
+      font-size: 18px;
+    }
+  
+    .submit-btn2 {
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  }
+  #txt{
+    position: relative;
+    font-family: "Poppins", sans-serif;
+    color: #0506077c;
+    font-size: 150px;
+  }
+  #txt:hover{
+    opacity: 0.9;
+    text-shadow: 0px -5px #ec2225, 0px 5px #00c2cb, -5px 0px #ec2225, 5px 0px #00c2cb;
+  }
+  #txt::before{
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #e0ffff;
+    z-index: -1;
+  }
+  #txt:hover::before{
+    animation: animate 12ms ease-in-out infinite;
+    z-index: 1;
+  }
+  @keyframes animate{
+    0%, 100%{
+      top: -7px;
+      left: 0;
+      opacity: 1;
+    }
+    20%{
+      top: 0;
+      left: -10px;
+      opacity: 0.7;
+    }
+    40%{
+      top: 7px;
+      left: 0;
+      opacity: 0.2;
+    }
+    60%{
+      top: 0;
+      left: 10px;
+      opacity: 0.3;
+    }
+    80%{
+      top: 0;
+      left: 0;
+      opacity: 0.9;
+    }
+  }
+  .coeur {
+    width: 100px;
+    height: 100px;
+    background-color: red;
+    border-radius: 50% 50% 0 0;
+    position: relative;
+  }
+  
+  .coeur:before,
+  .coeur:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 50%;
+    border-radius: 50%;
+    background: inherit;
+  }
+  
+  .coeur:before {
+    left: 0;
+  }
+  
+  .coeur:after {
+    right: 0;
+    transform: rotate(45deg);
+  }
