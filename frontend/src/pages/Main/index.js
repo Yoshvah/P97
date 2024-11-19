@@ -27,28 +27,10 @@ function Main({ selectedMenu, handleSelectMenu }) {
             <div className={`col-auto ${isCollapsed ? "col-2" : "col-md-2"} px-sm-1 px-0 bg-light-blue sidebar`}>
               <div className="d-flex flex-column align-items-center align-items-sm-start px-4 pt-2 min-vh-100">
                 <div className="dropdown pb-4 w-100">
-                  <a href="#" className="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                  <a href="#" className="d-flex align-items-center text-dark text-decoration-none " onClick={() => navigateTo('Mook/Profile')} aria-expanded="false">
                     <img src="https://github.com/mdo.png" alt="User" width="30" height="30" className="rounded-circle" />
                     <span className={`d-none d-sm-inline mx-1 ${isCollapsed ? "d-none" : ""}`}>User</span>
                   </a>
-                  <ul className="dropdown-menu dropdown-menu-light text-small shadow">
-                    <li>
-                      <a className="dropdown-item" onClick={() => navigateTo('Mook/Usersetting')}>
-                        Settings
-                      </a>
-                    </li>
-                    <li>
-                      <a className="dropdown-item" onClick={() => navigateTo('Mook/Profile')}>
-                        Profile
-                      </a>
-                    </li>
-                    <li><hr className="dropdown-divider" /></li>
-                    <li>
-                      <a className="dropdown-item" onClick={() => navigateTo('')}>
-                        Sign out
-                      </a>
-                    </li>
-                  </ul>
                 </div>
 
                 <div className="flex-grow-1 d-flex flex-column justify-content-center">
@@ -65,12 +47,36 @@ function Main({ selectedMenu, handleSelectMenu }) {
                         <span className={`ms-1 ${isCollapsed ? "d-none" : ""}`}>Mook</span>
                       </a>
                     </li>
+                    <li>
+                      <a className="nav-link px-0 align-middle text-dark" onClick={() => navigateTo('Mook/Usersetting')}>
+                        <i className="fs-4 bi-people"></i>
+                        <span className={`ms-1 ${isCollapsed ? "d-none" : ""}`}>Settings</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a className="nav-link px-0 align-middle text-dark" >
+                        <i className="fs-4 bi-people"></i>
+                        <span className={`ms-1 ${isCollapsed ? "d-none" : ""}`}>Profile</span>
+                      </a>
+                    </li>
                   </ul>
                 </div>
+                
 
-                <button className="btn btn-outline-dark mb-2 d-block d-sm-none" onClick={toggleSidebar}>
-                  {isCollapsed ? '>' : '<'}
-                </button>
+                
+                <div className="mb-2 d-block">
+                    <button className="btn btn-outline-dark  d-sm-none " onClick={toggleSidebar}>
+                      {isCollapsed ? '>' : '<'}
+                    </button>
+                    <ul className="text-small rounded-3 py-2 px-3">
+
+                    <li>
+                      <a className="text-danger text-decoration-none d-block py-1 px-2" onClick={() => navigateTo('')}>
+                        Sign out
+                      </a>
+                    </li>
+              </ul>
+                </div>
               </div>
             </div>
 

@@ -34,14 +34,7 @@ body {
   align-items: center;
 }
 
-.ck-editor__editable {
-  min-height: 50vh;
-  height: auto;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-}
+
 
 /* Card Form Container */
 .cardform {
@@ -298,13 +291,6 @@ button.secondary:hover {
     padding: 10px;
   }
 
-  .ck-editor__editable {
-    min-height: 50vh;
-  }
-
-  .cardform {
-    width: 50%;
-  }
 
   .form-control,
   button {
@@ -323,9 +309,7 @@ button.secondary:hover {
     height: 40vh;
   }
 
-  .ck-editor__editable {
-    min-height: 40vh;
-  }
+
 
   .cardform {
     padding: 15px;
