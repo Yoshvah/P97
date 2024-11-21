@@ -1,119 +1,207 @@
-/* Main container for the login page */
-.login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh; /* Full height for better centering */
+/* General Background */
+.form-bg {
+  background-color: #f7f8f9;
+  min-height: 90vh;
+}
+
+.container {
+  max-width: 1170px;
+  margin: 0 auto;
+}
+
+.form-container {
+  background-color: #fff;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  padding: 30px 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 25px -15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  height: auto;
+}
+
+/* Position the form to the center */
+.form-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-container:before,
+.form-container:after {
+  content: '';
+  background-color: #4E4C97;
+  height: 50%;
+  width: 4px;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
+.form-container:after {
+  top: auto;
+  bottom: 10px;
+  left: auto;
+  right: 10px;
+}
+
+.form-container .title {
+  color: #4E4C97;
+  font-size: 25px;
+  font-weight: 700;
+  text-transform: capitalize;
+  margin: 0 0 15px;
+}
+
+/* Form Group */
+.form-group {
+  margin: 0 0 15px;
+}
+
+.form-group input {
+  color: #4E4C97;
+  background: #F7F8F9;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: 2px solid #F2F5F6;
+  box-shadow: none;
+  width: 100%;
+}
+
+.form-group input:focus {
+  border-color: rgba(78, 76, 151, 0.5);
+  box-shadow: none;
+}
+
+.password-group {
+  position: relative;
+}
+
+.password-icons {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.submit-btn {
+  color: #fff;
+  background-color: #4E4C97;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px;
+  margin: 10px 0;
+  border-radius: 15px;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #6667b8;
+}
+
+.forgot-password {
+  display: inline-block;
+  color: #4E4C97;
+  font-size: 14px;
+  margin-top: 15px;
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+.login-text {
+  font-size: 14px;
+  color: #555;
+  margin-top: 20px;
+}
+
+.signup-link {
+  color: #4E4C97;
+  text-decoration: none;
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Media Queries for Responsiveness */
+
+/* Mobile (Portrait) */
+@media only screen and (max-width: 480px) {
+  .form-container {
+    padding: 20px;
+  }
+  .form-container .title {
+    font-size: 20px;
+  }
+  .form-group input {
+    font-size: 12px;
+    padding: 8px;
+  }
+  .submit-btn {
+    font-size: 14px;
+    padding: 12px;
+  }
+  .forgot-password, .login-text {
+    font-size: 12px;
+  }
+}
+
+/* Tablets (Portrait and Landscape) */
+@media only screen and (min-width: 481px) and (max-width: 768px) {
+  .form-container {
+    padding: 25px;
+  }
+  .form-container .title {
+    font-size: 22px;
+  }
+  .form-group input {
+    font-size: 13px;
     padding: 10px;
-    background-color: #f7f7f7;
   }
-  
-  /* Login box with a gradient background */
-  .login-box {
-    background: linear-gradient(135deg, #3fb4db, #052652);
-    border-radius: 20px;
-    padding: 40px 30px; /* Reduced padding for a more compact look */
-    width: 100%; /* Full width on small screens */
-    max-width: 400px; /* Max width for larger screens */
-    text-align: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Header style */
-  .h2 {
-    color: rgb(253, 251, 251);
-    font-size: 24px; /* Adjusted for better readability */
-    margin-bottom: 20px;
-  }
-  
-  /* Input group styling */
-  .input-group {
-    margin-bottom: 15px;
-    text-align: left;
-    width: 100%; /* Full width of parent */
-  }
-  
-  /* Input field styling */
-  input {
-    width: 100%; /* Full width for better responsiveness */
+  .submit-btn {
+    font-size: 15px;
     padding: 12px;
-    border-radius: 10px;
-    border: 1px solid #ccc; /* Added border for better definition */
-    background-color: rgba(245, 243, 243, 0.8);
-    font-size: 16px;
   }
-  
-  /* Input focus effect */
-  input:focus {
-    outline: none;
-    border: 1px solid #2d9cdb; /* Highlight on focus */
+  .forgot-password, .login-text {
+    font-size: 13px;
   }
-  
-  /* Password group styling */
-  .password-group {
-    position: relative;
+}
+
+/* Desktop and Larger Devices */
+@media only screen and (min-width: 769px) {
+  .form-container {
+    padding: 30px 40px;
   }
-  
-  /* Icon positioning for password visibility toggle */
-  .password-icons {
-    position: absolute;
-    right: 10px;
-    top: 50%; /* Center icon vertically */
-    transform: translateY(-50%); /* Adjust vertical alignment */
-    cursor: pointer;
+  .form-container .title {
+    font-size: 25px;
   }
-  
-  /* Button styling */
-  .log, .login-button {
-    width: 100%; /* Full width for buttons */
+  .form-group input {
+    font-size: 14px;
     padding: 12px;
-    border: none;
-    border-radius: 10px;
-    background-color: #2d9cdb;
-    color: white;
+  }
+  .submit-btn {
     font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    padding: 14px;
   }
-  
-  .log:hover, .login-button:hover {
-    background-color: #1a73e8;
+  .forgot-password, .login-text {
+    font-size: 14px;
   }
-  
-  /* Forgot password link styling */
-  .forgot-password {
-    display: block;
-    margin-top: 10px;
-    color: white;
-    text-decoration: none;
-    font-size: 14px; /* Smaller font for less emphasis */
-  }
-  
-  /* Sign up link styling */
-  .signup-link {
-    color: #1b6fdd;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  
-  .signup-link:hover {
-    text-decoration: underline;
-  }
-  
-  /* Error message styling */
-  .error {
-    color: red; /* Red color for error messages */
-    font-size: 14px; /* Smaller font size */
-  }
-  
-  /* Responsive styles */
-  @media (max-width: 768px) {
-    .login-box {
-      padding: 20px; /* Less padding for small screens */
-    }
-  
-    .h2 {
-      font-size: 20px; /* Smaller heading for small screens */
-    }
-  }
-  
+}
+/* .containeer{
+  margin: 10px auto;
+} */

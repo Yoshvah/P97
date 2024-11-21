@@ -18,6 +18,11 @@ function Main({ selectedMenu, handleSelectMenu }) {
   const navigateTo = (menu) => {
     navigate(`/${menu}`);
   };
+  const handlelogout = () =>{
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  }
 
   return (
     <>
@@ -71,7 +76,7 @@ function Main({ selectedMenu, handleSelectMenu }) {
                     <ul className="text-small rounded-3 py-2 px-3">
 
                     <li>
-                      <a className="text-danger text-decoration-none d-block py-1 px-2" onClick={() => navigateTo('')}>
+                      <a className="text-danger text-decoration-none d-block py-1 px-2" onClick={handlelogout}>
                         Sign out
                       </a>
                     </li>

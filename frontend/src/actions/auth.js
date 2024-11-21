@@ -9,6 +9,9 @@ import {
 import * as AuthService from "services/auth.service"
 
 export const signup = (username, password) => dispatch => {
+  console.log('username',username);
+  console.log('password',password);
+
   return new Promise((resolve, reject) => {
     AuthService.signup(username, password)
       .then(response => {

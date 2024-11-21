@@ -1,137 +1,103 @@
-// import { useState } from "react"
-// import { useHistory } from "react-router-dom"
-// import { useDispatch } from "react-redux"
-// import { login } from "actions/auth"
-// import { Link } from "react-router-dom"
-
-// function Login() {
-//   const history = useHistory()
-//   const dispatch = useDispatch()
-//   const [username, setUsername] = useState("ahmed")
-//   const [password, setPassword] = useState("ivana")
-//   const [error, setError] = useState()
-
-//   function handleSubmit() {
-//     dispatch(login(username, password))
-//       .then(() => {
-//         history.push("/")
-//       })
-//       .catch(err => {
-//         setError(err.response.data)
-//       })
-//   }
-
-//   return (
-//     <div className="col-md-12">
-//       <div className="card card-container">
-//         {error && <div className="alert alert-danger">{error}</div>}
-
-//         <div className="form-group">
-//           <label htmlFor="username">Username</label>
-//           <input
-//             type="text"
-//             className="form-control"
-//             placeholder="Username"
-//             value={username}
-//             onChange={e => setUsername(e.target.value)}
-//           />
-//         </div>
-//         <div className="form-group">
-//           <label htmlFor="password">Password</label>
-//           <input
-//             type="password"
-//             className="form-control"
-//             placeholder="Password"
-//             value={password}
-//             onChange={e => setPassword(e.target.value)}
-//           />
-//         </div>
-//         <button
-//           className="w-100 btn btn-lg btn-primary submit-button"
-//           onClick={handleSubmit}
-//           disabled={!username}
-//         >
-//           Log in
-//         </button>
-
-//         <div className="centered">
-//           don't have an account?
-//           <Link to="/signup" className="auth-link">
-//             Sign up
-//           </Link>
-//         </div>
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default Login
-import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Use useNavigate instead of useHistory
-import { useDispatch } from "react-redux";
-import { login } from "actions/auth";
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from 'actions/auth';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import Navbar from 'components/Navbar';
+import Footer from 'components/Footer';
 import "../Login/login.css";
 
 const Login = () => {
-  const navigate = useNavigate(); // Initialize useNavigate
-  const dispatch = useDispatch();
-  const [username, setUsername] = useState("ahmed");
-  const [password, setPassword] = useState("ivana");
-  const [error, setError] = useState();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState(null);
 
-  function handleSubmit(event) {
-    event.preventDefault(); // Prevent form from refreshing the page
-    dispatch(login(username, password))
-      .then(() => {
-        navigate("/"); // Replace history.push with navigate
-      })
-      .catch((err) => {
-        setError(err.response.data);
-      });
-  }
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await dispatch(login(username, password));
+      navigate('/'); // Redirect to the home page on successful login
+    } catch (err) {
+      setError(err.response?.data || { message: 'Login failed. Please try again.' });
+    }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <h2 className="h2">Login</h2>
-        {error && <div className="error">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label htmlFor="username">Username:</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
+    <>
+      <Navbar />
+      <div className="form-bg">
+        <div className="container">
+          <div className="row d-flex justify-content-center">
+            <div className="col-md-offset-4 col-md-4 col-sm-offset-3 col-sm-6">
+              <div className="form-container">
+                <h3 className="title">Login</h3>
 
-          <div className="input-group password-group">
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+                <form onSubmit={handleSubmit}>
+                  {/* Username Field */}
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Enter your username"
+                      required
+                    />
+                  </div>
 
-          <button type="submit" className="login-button" disabled={!username}>
-            Login
-          </button>
-        </form>
-        <a href="#" className="forgot-password">Forgot password?</a>
-        <p>
-          Don't have an account? <a href="/signup" className="signup-link">Sign up</a>
-        </p>
+                  {/* Password Field */}
+                  <div className="form-group password-group">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      className="form-control"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      required
+                    />
+                    <span className="password-icons" onClick={togglePasswordVisibility}>
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </span>
+                  </div>
+
+                  {/* General Error Message */}
+                  {error && error.message && <p className="error">{error.message}</p>}
+
+                  {/* Submit Button */}
+                  <button type="submit" className="btn submit-btn">
+                    Log in
+                  </button>
+                </form>
+
+                {/* Forgot Password Link */}
+                <Link to="/forgot-password" className="forgot-password">
+                  Forgot your password?
+                </Link>
+
+                {/* Sign-Up Prompt */}
+                <p className="login-text">
+                  Not a member yet?{' '}
+                  <Link to="/signup" className="signup-link">
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <Footer />
+    </>
   );
 };
 

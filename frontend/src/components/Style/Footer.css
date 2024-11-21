@@ -1,0 +1,57 @@
+/* Ensure the main content takes up the full height of the viewport */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+/* Wrapper for content and footer */
+.page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure it takes the full height of the viewport */
+}
+
+/* Main content to push footer down */
+.content {
+    flex: 1; /* Push the footer to the bottom */
+}
+
+/* Footer styles */
+.footer-container {
+    background-color: #000000;
+    color: #ffffff;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+    position: relative; /* Position relative for normal flow */
+    bottom: 0;
+    left: 0;
+}
+
+/* Link styles */
+.footer-container a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.footer-container a:hover {
+    color: #ffcc00; /* Highlight on hover */
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .footer-container {
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+/* Responsive design for larger screens */
+@media (min-width: 768px) {
+    .footer-container {
+        padding: 20px;
+    }
+}

@@ -1,0 +1,179 @@
+/* Form Styles */
+.form-bg {
+  background-color: #f7f8f9;
+  min-height: 90vh;
+}
+
+.container {
+  max-width: 1170px;
+  margin: 0 auto;
+}
+
+.form-container {
+  background-color: #fff;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  padding: 30px 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 25px -15px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+.form-container {
+  background-color: #fff;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  padding: 30px 25px;
+  border-radius: 10px;
+  box-shadow: 0 0 25px -15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  
+
+}
+
+
+.form-container:before,
+.form-container:after {
+  content: '';
+  background-color: #4E4C97;
+  height: 50%;
+  width: 4px;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
+.form-container:after {
+  top: auto;
+  bottom: 10px;
+  left: auto;
+  right: 10px;
+}
+
+.form-container .title {
+  color: #4E4C97;
+  font-size: 25px;
+  font-weight: 700;
+  text-transform: capitalize;
+  margin: 0 0 15px;
+}
+
+.form-container .social-links {
+  padding: 0;
+  margin: 0 0 15px;
+  list-style: none;
+}
+
+.form-container .social-links li {
+  display: inline-block;
+  margin: 0 3px;
+}
+
+.form-container .social-links li a {
+  color: #555;
+  line-height: 27px;
+  height: 28px;
+  width: 28px;
+  border: 1px solid #555;
+  border-radius: 50%;
+  display: block;
+  transition: all 0.3s ease 0s;
+}
+
+.form-container .social-links li a:hover {
+  color: #fff;
+  background-color: #4E4C97;
+}
+
+.form-container .description {
+  color: #555;
+  font-size: 13px;
+  margin: 0 0 10px;
+  display: block;
+}
+
+.form-horizontal .form-group {
+  margin: 0 0 15px;
+}
+
+.form-horizontal .form-control {
+  color: #4E4C97;
+  background: #F7F8F9;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  padding: 6px 12px;
+  border-radius: 5px;
+  border: 2px solid #F2F5F6;
+  box-shadow: none;
+}
+
+.form-horizontal .form-control:focus {
+  border-color: rgba(78, 76, 151, 0.5);
+  box-shadow: none;
+}
+
+.form-horizontal .form-control::placeholder {
+  color: #e1e1e1;
+}
+
+.form-horizontal .checkbox {
+  height: 17px;
+  width: 17px;
+  margin: 0 3px 0 0;
+  border: 1px solid #999;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.form-horizontal .checkbox:checked {
+  background-color: #4E4C97;
+  border-color: #4E4C97;
+}
+
+.form-horizontal .btn {
+  color: #fff;
+  background-color: #4E4C97;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px;
+  margin: 10px 0;
+  border-radius: 15px;
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+}
+
+.form-horizontal .btn:hover {
+  background-color: #6667b8;
+}
+
+.form-horizontal .signin {
+  background-color: transparent;
+  border: 1px solid #4E4C97;
+}
+
+.form-horizontal .signin a {
+  color: #4E4C97;
+  text-decoration: none;
+}
+
+.password-group {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.checkbox-label {
+  display: inline-block;
+  font-size: 14px;
+}
+
+.signup, .signin {
+  width: 100%;
+}
+

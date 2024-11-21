@@ -1,128 +1,157 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import Form from "react-validation/build/form";
-import Input from "react-validation/build/input";
-import CheckButton from "react-validation/build/button";
-
 import { signup } from "actions/auth";
-import { Link, useNavigate } from "react-router-dom"; // Use useNavigate instead of useHistory
+import Navbar from "components/Navbar";
+import "../Signup/index.css"; // Import the new CSS file
+import { Link, useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Icons for password visibility toggle
+import Footer from "components/Footer"; 
 
-// Validation functions
-const required = value => {
+const required = (value) => {
   if (!value) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        This field is required!
-      </div>
-    );
+    return <div className="alert alert-danger">This field is required!</div>;
   }
 };
 
-const vusername = value => {
+const vusername = (value) => {
   if (value.length < 3 || value.length > 20) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        The username must be between 3 and 20 characters.
-      </div>
-    );
+    return <div className="alert alert-danger">The username must be between 3 and 20 characters.</div>;
   }
 };
 
-const vpassword = value => {
+const vpassword = (value) => {
   if (value.length < 6 || value.length > 40) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        The password must be between 6 and 40 characters.
-      </div>
-    );
+    return <div className="alert alert-danger">The password must be between 6 and 40 characters.</div>;
   }
 };
 
 const Signup = () => {
-  const form = useRef();
-  const checkBtn = useRef();
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate(); 
+  const dispatch = useDispatch();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { message } = useSelector((state) => state.message);
 
-  const { message } = useSelector(state => state.message);
-  const dispatch = useDispatch();
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
-  const onChangeUsername = e => {
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const onChangeUsername = (e) => {
     setUsername(e.target.value);
   };
 
-  const onChangePassword = e => {
+  const onChangePassword = (e) => {
     setPassword(e.target.value);
   };
 
-  const handleSignup = e => {
-    e.preventDefault();
-    form.current.validateAll();
+  const onChangeConfirmPassword = (e) => {
+    setConfirmPassword(e.target.value);
+  };
 
-    if (checkBtn.current.context._errors.length === 0) {
-      dispatch(signup(username, password)).then(() => {
-        navigate("/login"); // Use navigate() instead of history.push()
-      });
+  const handleSignup = (e) => {
+    e.preventDefault();
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
     }
+
+    dispatch(signup(username, password)).then(() => {
+      navigate("/login");
+    });
   };
 
   return (
-    <div className="col-md-12">
-      <div className="card card-container">
-        {message && (
-          <div className="form-group">
-            <div className="alert alert-danger" role="alert">
-              {message}
+    <>
+      <Navbar />
+      <div className="form-bg">
+        <div className="container">
+          <div className="row d-flex justify-content-center">
+            <div className="col-md-offset-4 col-md-4 col-sm-offset-3 col-sm-6">
+              <div className="form-container">
+                <h3 className="title">Create Account</h3>
+
+                {/* <ul className="social-links">
+                  <li><a href=""><i className="fab fa-google"></i></a></li>
+                  <li><a href=""><i className="fab fa-facebook-f"></i></a></li>
+                  <li><a href=""><i className="fab fa-twitter"></i></a></li>
+                </ul> */}
+
+                {/* <span className="description">or use your email for registration:</span> */}
+
+                <form className="form-horizontal" onSubmit={handleSignup}>
+                  <div className="form-group">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Username"
+                      name="username"
+                      value={username}
+                      onChange={onChangeUsername}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-group password-group">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      className="form-control"
+                      placeholder="Password"
+                      name="password"
+                      value={password}
+                      onChange={onChangePassword}
+                      required
+                    />
+                    <span className="toggle-password" onClick={togglePasswordVisibility}>
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </span>
+                  </div>
+
+                  <div className="form-group password-group">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      className="form-control"
+                      placeholder="Confirm Password"
+                      name="confirmPassword"
+                      value={confirmPassword}
+                      onChange={onChangeConfirmPassword}
+                      required
+                    />
+                    <span className="toggle-password" onClick={toggleConfirmPasswordVisibility}>
+                      {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                    </span>
+                  </div>
+
+                  {/* <div className="form-group">
+                    <input type="checkbox" className="checkbox" />
+                    <span className="check-label">
+                      I agree to the <a href="">Terms</a> and <a href="">Privacy Policy.</a>
+                    </span>
+                  </div> */}
+
+                  <button type="submit" className="btn signup">
+                    Sign up
+                  </button>
+                  <button type="button" className="btn signin">
+                    <Link to="/login">Sign in</Link>
+                  </button>
+                </form>
+              </div>
             </div>
           </div>
-        )}
-
-        <Form onSubmit={handleSignup} ref={form}>
-          <div>
-            <div className="form-group">
-              <label htmlFor="username">Username</label>
-              <Input
-                type="text"
-                className="form-control"
-                name="username"
-                value={username}
-                onChange={onChangeUsername}
-                validations={[required, vusername]}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <Input
-                type="password"
-                className="form-control"
-                name="password"
-                value={password}
-                onChange={onChangePassword}
-                validations={[required, vpassword]}
-              />
-            </div>
-
-            <div className="form-group">
-              <button className="w-100 btn btn-lg submit-button btn-primary btn-block">
-                Sign Up
-              </button>
-            </div>
-          </div>
-
-          <CheckButton style={{ display: "none" }} ref={checkBtn} />
-          <div className="centered">
-            Already have an account?
-            <Link to="/login" className="auth-link">
-              Login
-            </Link>
-          </div>
-        </Form>
+        </div>
       </div>
-    </div>
+
+      <Footer />
+    </>
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import "react-dropdown/style.css"
-import './index.css';
+import '../components/Style/Navbar.css';
 import { NavLink } from 'react-router-dom';
 function Navbar() {
 
@@ -22,7 +22,7 @@ function Navbar() {
           </NavLink>
           
           <NavLink
-            to="/register"
+            to="/signup"
             className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
           >
             REGISTER

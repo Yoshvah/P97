@@ -14,7 +14,7 @@ use JsonSerializable;
 /**
  * @ApiResource(formats={"json"})
  * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\Table(name="`user`")
+ * @ORM\Table(name="users")
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSerializable
 {
@@ -31,6 +31,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     private $username;
 
     /**
+     * @ORM\Column(type="string", length=180, unique=true)
+     */
+    private $email;
+
+    /**
      * @ORM\Column(type="json")
      */
     private $roles = [];
@@ -44,19 +49,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     private $plainPassword;
 
     /**
-     * @ORM\OneToMany(targetEntity=Post::class, mappedBy="user_id")
+     * @ORM\OneToMany(targetEntity=Mook::class, mappedBy="owner", cascade={"persist", "remove"})
      */
-    private $posts;
+    private $mooks;
 
     /**
-     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="users")
+     * @ORM\Column(type="date", nullable=true)
      */
-    private $comments;
+    private ?\DateTimeInterface $birthday = null;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $slogan = null;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private ?array $interest = [];
+
+    /**
+     * @ORM\Column(type="string", length=15, nullable=true)
+     */
+    private ?string $phone = null;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private ?string $address = null;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $profilePicture = null;
+
+
 
     public function __construct()
     {
-        $this->posts = new ArrayCollection();
-        $this->comments = new ArrayCollection();
+        $this->mooks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -64,9 +95,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
         return $this->id;
     }
 
-    /**
-     * @deprecated since Symfony 5.3, use getUserIdentifier instead
-     */
     public function getUsername(): string
     {
         return (string) $this->username;
@@ -75,42 +103,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     public function setUsername(string $username): self
     {
         $this->username = $username;
-
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->username;
     }
 
-    /**
-     * @see UserInterface
-     */
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        $this->email = $email;
+        return $this;
+    }
+
     public function getRoles(): array
     {
-        // $roles = $this->roles;
-        //  guarantee every user at least has ROLE_USER
-        // $roles[] = 'ROLE_USER';
         return ["ROLE_USER"];
-        return array_unique($roles);
     }
 
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): string
     {
         return $this->password;
@@ -119,7 +141,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     public function setPassword(string $password): self
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -133,91 +154,128 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
         $this->plainPassword = $password;
     }
 
-    /**
-     * Returning a salt is only needed, if you are not using a modern
-     * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
-     *
-     * @see UserInterface
-     */
-    public function getSalt(): ?string
-    {
-        return null;
-    }
-
-    /**
-     * @see UserInterface
-     */
     public function eraseCredentials()
     {
-        // If you store any temporary, sensitive data on the user, clear it here
         $this->plainPassword = null;
     }
 
     /**
-     * @return Collection|Post[]
+     * @return Collection|Mook[]
      */
-    public function getPosts(): Collection
+    public function getMooks(): Collection
     {
-        return $this->posts;
+        return $this->mooks;
     }
 
-    public function addPost(Post $post): self
+    public function addMook(Mook $mook): self
     {
-        if (!$this->posts->contains($post)) {
-            $this->posts[] = $post;
-            $post->setUserId($this);
+        if (!$this->mooks->contains($mook)) {
+            $this->mooks[] = $mook;
+            $mook->setOwner($this);
         }
-
         return $this;
     }
 
-    public function removePost(Post $post): self
+    public function removeMook(Mook $mook): self
     {
-        if ($this->posts->removeElement($post)) {
-            // set the owning side to null (unless already changed)
-            if ($post->getUserId() === $this) {
-                $post->setUserId(null);
+        if ($this->mooks->removeElement($mook)) {
+            if ($mook->getOwner() === $this) {
+                $mook->setOwner(null);
             }
         }
-
         return $this;
     }
+
+    public function getBirthday(): ?\DateTimeInterface
+    {
+        return $this->birthday;
+    }
+
+    public function setBirthday(?\DateTimeInterface $birthday): self
+    {
+        $this->birthday = $birthday;
+        return $this;
+    }
+
+    public function getSlogan(): ?string
+    {
+        return $this->slogan;
+    }
+
+    public function setSlogan(?string $slogan): self
+    {
+        $this->slogan = $slogan;
+        return $this;
+    }
+
+    public function getInterest(): ?array
+    {
+        return $this->interest;
+    }
+
+    public function setInterest(?array $interest): self
+    {
+        $this->interest = $interest;
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): self
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    public function getAddress(): ?string
+    {
+        return $this->address;
+    }
+
+    public function setAddress(?string $address): self
+    {
+        $this->address = $address;
+        return $this;
+    }
+
+    public function getProfilePicture(): ?string
+    {
+        return $this->profilePicture;
+    }
+
+    public function setProfilePicture(?string $profilePicture): self
+    {
+        $this->profilePicture = $profilePicture;
+        return $this;
+    }
+
+
+
 
     public function jsonSerialize()
     {
         return [
             "id" => $this->id,
             "username" => $this->username,
+            "email" => $this->email,
+            "birthday" => $this->birthday,
+            "slogan" => $this->slogan,
+            "interest" => $this->interest,
+            "phone" => $this->phone,
+            "address" => $this->address,
+            "profilePicture" => $this->profilePicture,
         ];
     }
 
     /**
-     * @return Collection|Comment[]
+     * Returns the salt that was used during password encoding.
+     * In your case, it's not used, so return null.
      */
-    public function getComments(): Collection
+    public function getSalt(): ?string
     {
-        return $this->comments;
-    }
-
-    public function addComment(Comment $comment): self
-    {
-        if (!$this->comments->contains($comment)) {
-            $this->comments[] = $comment;
-            $comment->setUsers($this);
-        }
-
-        return $this;
-    }
-
-    public function removeComment(Comment $comment): self
-    {
-        if ($this->comments->removeElement($comment)) {
-            // set the owning side to null (unless already changed)
-            if ($comment->getUsers() === $this) {
-                $comment->setUsers(null);
-            }
-        }
-
-        return $this;
+        return null; // Modern password encoders like bcrypt don't use salts anymore
     }
 }
