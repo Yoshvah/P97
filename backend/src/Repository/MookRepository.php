@@ -1,28 +1,25 @@
 <?php
 
-namespace App\Controller;
+namespace App\Repository;
 
-use App\Repository\MookRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Mook;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
-class MookController extends AbstractController
+/**
+ * @extends ServiceEntityRepository<Mook>
+ *
+ * @method Mook|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Mook|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Mook[]    findAll()
+ * @method Mook[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ */
+class MookRepository extends ServiceEntityRepository
 {
-    private MookRepository $mookRepository;
-
-    public function __construct(MookRepository $mookRepository)
+    public function __construct(ManagerRegistry $registry)
     {
-        $this->mookRepository = $mookRepository;
+        parent::__construct($registry, Mook::class);
     }
 
-    #[Route('/mooks/user/{userId}', name: 'mooks_for_user')]
-    public function mooksForUser(int $userId): Response
-    {
-        $mooks = $this->mookRepository->findAllForUser($userId);
-
-        return $this->json([
-            'mooks' => $mooks,
-        ]);
-    }
+    // You can add custom query methods here if needed.
 }

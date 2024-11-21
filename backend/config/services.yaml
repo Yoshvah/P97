@@ -20,6 +20,7 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Migrations/'
             - '../src/Tests/'
 
     App\Service\ImageUploader:

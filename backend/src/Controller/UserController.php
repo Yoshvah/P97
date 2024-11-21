@@ -137,4 +137,12 @@ class UserController extends AbstractController
         $this->manager->flush();
         return new JsonResponse(['status' => 'User deleted!'], Response::HTTP_OK);
     }
+    /**
+     * @Route("/api/user/{any}", name="options_user", methods={"OPTIONS"})
+     */
+    public function options(): Response
+    {
+        return new Response('', Response::HTTP_OK);
+    }
+
 }
