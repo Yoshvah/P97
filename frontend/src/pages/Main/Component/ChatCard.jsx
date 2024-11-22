@@ -14,7 +14,7 @@ const ChatCard = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/users');
+        const response = await axios.get('http://localhost:8000/api/users');
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -27,7 +27,7 @@ const ChatCard = () => {
     const fetchMessages = async () => {
       if (receiverId) {
         try {
-          const response = await axios.get(`http://localhost:3000/api/user-chats/${receiverId}`);
+          const response = await axios.get(`http://localhost:8000/api/user-chats/${receiverId}`);
           setMessages(response.data);
         } catch (error) {
           console.error('Error fetching messages:', error);
@@ -52,7 +52,7 @@ const ChatCard = () => {
     if (imageFile) formData.append('image', imageFile);
 
     try {
-      await axios.post('http://localhost:3000/api/user-chats', formData, {
+      await axios.post('http://localhost:8000/api/user-chats', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setMessages([...messages, { content: newMessage, sender: 'You', image: URL.createObjectURL(imageFile) }]);

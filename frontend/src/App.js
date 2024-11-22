@@ -44,6 +44,7 @@ import { useSelector } from "react-redux";
 import "stylesheet/form.css";
 
 // PAGES
+import Accueil from "./pages/Accueil";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Main from "pages/Main";
@@ -65,13 +66,13 @@ function App() {
           />
           <Route
             path="/Accueil"
-            element={isLoggedIn ? <Navigate to="/" /> : <Signup />}  // If logged in, redirect to home
+            element={isLoggedIn ? <Navigate to="/Accueil" /> : <Accueil />}  // If logged in, redirect to home
           />
 
           {/* Private Route */}
           <Route
             path="/"
-            element={isLoggedIn ? <Navigate to="/Mook/message" /> : <Navigate to="/login" />}
+            element={isLoggedIn ? <Navigate to="/Mook/message" /> : <Navigate to="/Accueil" />}
           />
           <Route
             path="/Mook/*"

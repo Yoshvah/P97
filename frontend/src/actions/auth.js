@@ -20,10 +20,16 @@ export const signup = (username, password) => dispatch => {
         return resolve()
       })
       .catch(error => {
-        dispatch({ type: REGISTER_FAIL })
-        dispatch({ type: SET_MESSAGE, payload: error.response.data })
-        return reject(error)
-      })
+        const errorMessage =
+          error.response?.data?.message || // Backend-specific error message
+          error.response?.data ||         // Fallback for other error data
+          error.message ||                // General error message
+          "An unexpected error occurred"; // Default message
+      
+        dispatch({ type: REGISTER_FAIL });
+        dispatch({ type: SET_MESSAGE, payload: errorMessage });
+        return reject(error);
+      });
   })
 }
 

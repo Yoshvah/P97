@@ -3,7 +3,7 @@ import Footer from "pages/Footer";
 import Navbar from "components/Navbar"
 import HomeImg from "../../images/home.png";
 import './index.css';
-function Home() {
+function Accueil() {
   return (
 
     <div className="sub_page">
@@ -25,4 +25,4 @@ function Home() {
   )
 }
 
-export default Home
+export default Accueil

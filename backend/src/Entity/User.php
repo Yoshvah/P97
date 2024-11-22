@@ -31,7 +31,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     private $username;
 
     /**
-     * @ORM\Column(type="string", length=180, unique=true)
+     * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     private $email;
 
@@ -116,11 +116,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
         return $this->email;
     }
 
-    public function setEmail(string $email): self
+    public function setEmail(?string $email): self
     {
-        $this->email = $email;
-        return $this;
+    $this->email = $email;
+    return $this;
     }
+
 
     public function getRoles(): array
     {

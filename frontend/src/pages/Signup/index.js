@@ -35,10 +35,11 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { message } = useSelector((state) => state.message);
-
+  const [loading, setLoading] = useState(false);
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+  const [errorMessage, setErrorMessage] = useState("");
 
   const toggleConfirmPasswordVisibility = () => {
     setShowConfirmPassword(!showConfirmPassword);
@@ -58,15 +59,24 @@ const Signup = () => {
 
   const handleSignup = (e) => {
     e.preventDefault();
-
+  
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setErrorMessage("Passwords do not match!");
       return;
     }
-
-    dispatch(signup(username, password)).then(() => {
-      navigate("/login");
-    });
+  
+    dispatch(signup(username, password))
+      .then(() => {
+        navigate("/login");
+      })
+      .catch((error) => {
+        const errorMessage =
+          error.response?.data?.message || // If the server provides a specific error message
+          error.message ||                // General error message from Axios
+          "An unexpected error occurred"; // Fallback for unknown errors
+        setErrorMessage(errorMessage);
+      });
+      
   };
 
   return (
@@ -78,7 +88,7 @@ const Signup = () => {
             <div className="col-md-offset-4 col-md-4 col-sm-offset-3 col-sm-6">
               <div className="form-container">
                 <h3 className="title">Create Account</h3>
-
+                {errorMessage && <div className="alert alert-danger" >{errorMessage}</div>}
                 {/* <ul className="social-links">
                   <li><a href=""><i className="fab fa-google"></i></a></li>
                   <li><a href=""><i className="fab fa-facebook-f"></i></a></li>
@@ -86,7 +96,7 @@ const Signup = () => {
                 </ul> */}
 
                 {/* <span className="description">or use your email for registration:</span> */}
-
+                  {loading ? (<div className="loader">Signing up</div>):(
                 <form className="form-horizontal" onSubmit={handleSignup}>
                   <div className="form-group">
                     <input
@@ -143,7 +153,7 @@ const Signup = () => {
                   <button type="button" className="btn signin">
                     <Link to="/login">Sign in</Link>
                   </button>
-                </form>
+                </form>)}
               </div>
             </div>
           </div>
