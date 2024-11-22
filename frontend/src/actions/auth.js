@@ -1,3 +1,4 @@
+import axios from "axios";
 import {
   REGISTER_SUCCESS,
   REGISTER_FAIL,
@@ -40,7 +41,8 @@ export const login = (username, password) => dispatch => {
         const { user, token } = response.data
         localStorage.setItem("token", token)
         localStorage.setItem("user", JSON.stringify(user))
-        dispatch({ type: LOGIN_SUCCESS, payload: user })
+        dispatch({ type: LOGIN_SUCCESS, payload: user });
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         return resolve()
       })
       .catch(error => {
