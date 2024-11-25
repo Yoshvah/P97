@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Message;
 use App\Entity\User;
-use App\Repository\MessageRepository;
+use App\Repository\ChatRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,18 +18,18 @@ class ChatController
     private $entityManager;
     private $validator;
     private $userRepository;
-    private $messageRepository;
+    private $ChatRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         UserRepository $userRepository,
-        MessageRepository $messageRepository
+        ChatRepository $ChatRepository
     ) {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
         $this->userRepository = $userRepository;
-        $this->messageRepository = $messageRepository;
+        $this->ChatRepository = $ChatRepository;
     }
 
     /**
@@ -42,10 +42,9 @@ class ChatController
         $data = array_map(function (User $user) {
             return [
                 'id' => $user->getId(),
-                'firstname' => $user->getFirstname(),
-                'lastname' => $user->getLastname(),
-                'Profilepic' => $user->getProfilepic(),
-                'datebirth' => $user->getDatebirth() ? $user->getDatebirth()->format('Y-m-d') : null,
+                'username' => $user->getUsername(),
+                'profilePicture' => $user->getProfilePicture(),
+                'birthday' => $user->getBirthday() ? $user->getBirthday()->format('Y-m-d') : null,
             ];
         }, $users);
 
@@ -57,7 +56,7 @@ class ChatController
      */
     public function getUserChats(int $receiverId): JsonResponse
     {
-        $messages = $this->messageRepository->findBy(['receiver' => $receiverId]);
+        $messages = $this->ChatRepository->findBy(['receiver' => $receiverId]);
 
         $data = array_map(function (Message $message) {
             return [
@@ -107,4 +106,32 @@ class ChatController
 
         return new JsonResponse(['message' => 'Message sent successfully'], Response::HTTP_CREATED);
     }
-}
+    // /**
+    //  * @Route("/api/user", name="get_current_user", methods={"GET"})
+    //  */
+
+    // public function getCurrentUser(UserRepository $userRepository): JsonResponse
+    // {
+    //     // Fetch the first user from the database
+    //     $user = $userRepository->findOneBy([], ['id' => 'ASC']); // Adjusting order to fetch the first user
+
+    //     // If no user exists, return a 404 error
+    //     if (!$user) {
+    //         return new JsonResponse(['error' => 'No users found'], 404);
+    //     }
+
+    //     $data = [
+    //         'id' => $user->getId(),
+    //         'firstname' => $user->getUsername(),
+    //         'email' => $user->getEmail(),
+    //         'datebirth' => $user->getBirthday() ? $user->getBirthday()->format('Y-m-d') : null,
+    //         'slogan' => $user->getSlogan(),
+    //         'interests' => $user->getInterest(), // Make sure this method matches your entity's method name
+    //         'phone' => $user->getPhone(),
+    //         'address' => $user->getAddress(),
+    //         'profilepic' => $user->getProfilPicture(),
+    //     ];
+
+    //     return new JsonResponse($data);
+    // }
+    }

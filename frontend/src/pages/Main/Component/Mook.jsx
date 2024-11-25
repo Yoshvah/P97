@@ -299,25 +299,6 @@ const Mook = () => {
     fetchMook();
   }, []);
 
-  // const handleSendMessage = (e) => {
-  //   e.preventDefault();
-  //   if (!newMessage.trim()) return;
-
-  //   const userMessage = { sender: 'user', text: newMessage, timestamp: new Date().toLocaleTimeString() };
-  //   setMessages((prevMessages) => [...prevMessages, userMessage]);
-  //   setNewMessage('');
-
-  //   setTimeout(() => {
-  //     const aiResponse = {
-  //       sender: 'ai',
-  //       text: `AI says: You said "${userMessage.text}"`,
-  //       timestamp: new Date().toLocaleTimeString(),
-  //     };
-  //     setMessages((prevMessages) => [...prevMessages, aiResponse]);
-  //   }, 1000);
-  // };
-
-
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
