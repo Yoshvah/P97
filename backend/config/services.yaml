@@ -28,3 +28,21 @@ services:
             $targetDirectory: '%images_directory%'
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    # MookController
+    App\Controller\MookController:
+        tags: ['controller.service_arguments']
+
+    # UserController
+    App\Controller\UserController:
+        tags: ['controller.service_arguments']
+
+    # ChatController
+    App\Controller\ChatController:
+        tags: ['controller.service_arguments']
+
+    # AiChatController
+    App\Controller\AiChatController:
+        tags: ['controller.service_arguments']
+    # UsersChatController
+        # App\Controller\UsersController:
+        #     tags: ['controller.service_arguments']

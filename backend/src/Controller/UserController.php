@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Symfony\Component\Security\Core\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Psr\Log\LoggerInterface; // Add this at the top
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
-
+use App\Repository\UserRepository;
 /**
  * @Route("/api/user", name="user")
  */
@@ -35,7 +36,6 @@ class UserController extends AbstractController
     /**
      * @Route("/signup", name="signup", methods={"POST"})
      */
-    // public function signUp(Request $request)
 
     public function signUp(Request $request, LoggerInterface $logger)
     {
@@ -103,11 +103,38 @@ class UserController extends AbstractController
     
         return new JsonResponse($response, Response::HTTP_OK);
     }
-    
-    
+    /**
+     * @Route("/test", name="testuser", methods={"GET"})
+     */
+    public function getCurrentUser(UserRepository $userRepository): JsonResponse
+    {
+        $user = $security->getUser();
+        // Fetch the first user from the database (adjust the logic to meet your actual needs)
+        //$user = $userRepository->findOneBy([]); // Replace with criteria if needed, e.g., ['id' => $id]
+
+        // If no user exists, return a 404 error
+        if (!$user) {
+            return new JsonResponse(['error' => 'No users found'], 404);
+        }
+
+        // Prepare the user data for the response
+        $data = [
+            'id' => $user->getId(),
+            'firstname' => $user->getUsername(),
+            'email' => $user->getEmail(),
+            'datebirth' => $user->getBirthday() ? $user->getBirthday()->format('Y-m-d') : null,
+            'slogan' => $user->getSlogan(),
+            'interests' => $user->getInterest(), // Adjust the field name and format if needed
+            'phone' => $user->getPhone(),
+            'address' => $user->getAddress(),
+            'profilePicture' => $user->getProfilePicture(),
+        ];
+
+        return new JsonResponse($data);
+    }
 
     /**
-     * @Route("/login", name="login", methods={"POST"})
+     * @Route("/login", name="log", methods={"POST"})
      */
     public function login(Request $request)
     {

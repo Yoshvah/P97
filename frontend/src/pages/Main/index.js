@@ -22,6 +22,7 @@ function Main({ selectedMenu, handleSelectMenu }) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
+    console.log('salut');
   }
 
   return (
@@ -59,7 +60,7 @@ function Main({ selectedMenu, handleSelectMenu }) {
                       </a>
                     </li>
                     <li>
-                      <a className="nav-link px-0 align-middle text-dark" >
+                      <a className="nav-link px-0 align-middle text-dark" onClick={() => navigateTo('Mook/Profile')}>
                         <i className="fs-4 bi-people"></i>
                         <span className={`ms-1 ${isCollapsed ? "d-none" : ""}`}>Profile</span>
                       </a>

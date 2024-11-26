@@ -10,32 +10,45 @@ const ChatCard = () => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [receiverId, setReceiverId] = useState(null);
+  const [error, setError] = useState(null);
 
+  // Check for token in localStorage
+  const token = localStorage.getItem('token');
+  
   useEffect(() => {
+    if (!token) {
+      setError('You must be logged in to view and send messages.');
+      return;
+    }
+
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/users');
+        const response = await axios.get('http://localhost:8000/api/users', {
+          headers: { Authorization: `Bearer ${token}` }, // Attach token
+        });
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
       }
     };
     fetchUsers();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
+    if (!receiverId) return;
+
     const fetchMessages = async () => {
-      if (receiverId) {
-        try {
-          const response = await axios.get(`http://localhost:8000/api/user-chats/${receiverId}`);
-          setMessages(response.data);
-        } catch (error) {
-          console.error('Error fetching messages:', error);
-        }
+      try {
+        const response = await axios.get(`http://localhost:8000/api/user-chats/${receiverId}`, {
+          headers: { Authorization: `Bearer ${token}` }, // Attach token
+        });
+        setMessages(response.data);
+      } catch (error) {
+        console.error('Error fetching messages:', error);
       }
     };
     fetchMessages();
-  }, [receiverId]);
+  }, [receiverId, token]);
 
   const handleUserClick = (user) => {
     setSelectedUser(user);
@@ -53,7 +66,10 @@ const ChatCard = () => {
 
     try {
       await axios.post('http://localhost:8000/api/user-chats', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          Authorization: `Bearer ${token}`, // Attach token
+          'Content-Type': 'multipart/form-data',
+        },
       });
       setMessages([...messages, { content: newMessage, sender: 'You', image: URL.createObjectURL(imageFile) }]);
       setNewMessage('');
@@ -62,6 +78,10 @@ const ChatCard = () => {
       console.error('Error sending message:', error);
     }
   };
+
+  if (error) {
+    return <div>{error}</div>; // Show error if no token
+  }
 
   return (
     <div className="chat-card">
@@ -73,18 +93,18 @@ const ChatCard = () => {
           {users.map((user) => (
             <li key={user.id} className="user-item" onClick={() => handleUserClick(user)}>
               <div className="user-avatar">
-                <img src={user.Profilepic} alt={`${user.firstname} ${user.lastname}`} />
+                <img src={user.profilePicture} alt={`${user.username}`} />
               </div>
               <div className="user-info">
-                <span className="user-name">{user.firstname} {user.lastname}</span>
-                <span className="user-status">{user.datebirth || 'No Date'}</span>
+                <span className="user-name">{user.username}</span>
+                <span className="user-status">{ 'No Date yet'}</span>
               </div>
             </li>
           ))}
         </ul>
       </div>
       <div className="chat-content">
-        {selectedUser && <div className="chat-header">Chatting with {selectedUser.firstname} {selectedUser.lastname}</div>}
+        {selectedUser && <div className="chat-header">Chatting with {selectedUser.username}</div>}
         <div className="message-container">
           <ul className="message-list">
             {messages.map((msg, index) => (
