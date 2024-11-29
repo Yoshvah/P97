@@ -89,34 +89,8 @@ const Mook = () => {
   };
 
   return (
-    <div className="main">
-      <div className="button-container">
-        <Button variant="outline-dark" id="new-item" onClick={() => setSelectedMook({})}>
-          Add New Item
-        </Button>
-      </div>
-
-      {mook.length > 0 ? (
-        <div className="cards">
-          {mook.map((mookItem, index) => (
-            <div className="card" key={index} onClick={() => handleCardClick(mookItem)}>
-              <img src="https://img.freepik.com/free-photo/nature-design-with-bokeh-effect_1048-1882.jpg" alt="mook" />
-              <div className="card-content">
-                <h2>{mookItem.title}</h2>
-                <p dangerouslySetInnerHTML={{ __html: mookItem.content?.[0]?.text || 'No description available' }}></p>
-                <a href="#" className="button">
-                  Find out more
-                  <span className="material-symbols-outlined">arrow_right_alt</span>
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p>No cards available</p>
-      )}
-
-      {selectedMook && (
+    <>
+      {selectedMook ? (
         <div className="cardform">
           <div className="form-containerr">
             <div className="form-actions">
@@ -155,51 +129,79 @@ const Mook = () => {
             </div>
           </div>
         </div>
-      )}
-
-      <div className="floating-container">
-        <div className="floating-button" onClick={() => setShowChat(!showChat)}>
-          <i className="fas fa-robot"></i>
-        </div>
-        {showChat && (
-          <div className="chat-container">
-            <h3 className='AItitle'>Chat to AI</h3>
-            <hr />
-            <ul className="chat-messages">
-              {messages.map((msg, index) => (
-                <li key={index} className={msg.sender === 'user' ? 'chat-user' : 'chat-ai'}>
-                  <div className="chat-profile">
-                    {msg.sender === 'user' ? (
-                      <i className="fas fa-user chat-profile-icon"></i>
-                    ) : (
-                      <i className="fas fa-robot chat-profile-icon"></i>
-                    )}
-                  </div>
-                  <div className="chat-message">
-                    <span className="chat-message-text">{msg.text}</span>
-                    <span className="chat-timestamp">{msg.timestamp}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div className="chat-input-section">
-              <input
-                type="text"
-                className="chat-input"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type a message"
-              />
-              <button onClick={handleSendMessage} className="send-button">
-                <i className="fas fa-paper-plane"></i>
-              </button>
-            </div>
+      ) : (
+        <div className="main">
+          <div className="button-container">
+            <Button variant="outline-dark" id="new-item" onClick={() => setSelectedMook({})}>
+              Add New Item
+            </Button>
           </div>
-        )}
-      </div>
-    </div>
+  
+          {mook.length > 0 ? (
+            <div className="cards">
+              {mook.map((mookItem, index) => (
+                <div className="card" key={index} onClick={() => handleCardClick(mookItem)}>
+                  <img src="https://img.freepik.com/free-photo/nature-design-with-bokeh-effect_1048-1882.jpg" alt="mook" />
+                  <div className="card-content">
+                    <h2>{mookItem.title}</h2>
+                    <p dangerouslySetInnerHTML={{ __html: mookItem.content?.[0]?.text || 'No description available' }}></p>
+                    <a href="#" className="button">
+                      Find out more
+                      <span className="material-symbols-outlined">arrow_right_alt</span>
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>No cards available</p>
+          )}
+  
+          <div className="floating-container">
+            <div className="floating-button" onClick={() => setShowChat(!showChat)}>
+              <i className="fas fa-robot"></i>
+            </div>
+            {showChat && (
+              <div className="chat-container">
+                <h3 className="AItitle">Chat to AI</h3>
+                <hr />
+                <ul className="chat-messages">
+                  {messages.map((msg, index) => (
+                    <li key={index} className={msg.sender === 'user' ? 'chat-user' : 'chat-ai'}>
+                      <div className="chat-profile">
+                        {msg.sender === 'user' ? (
+                          <i className="fas fa-user chat-profile-icon"></i>
+                        ) : (
+                          <i className="fas fa-robot chat-profile-icon"></i>
+                        )}
+                      </div>
+                      <div className="chat-message">
+                        <span className="chat-message-text">{msg.text}</span>
+                        <span className="chat-timestamp">{msg.timestamp}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <div className="chat-input-section">
+                  <input
+                    type="text"
+                    className="chat-input"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type a message"
+                  />
+                  <button onClick={handleSendMessage} className="send-button">
+                    <i className="fas fa-paper-plane"></i>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
-};
+}  
 
 export default Mook;
 
