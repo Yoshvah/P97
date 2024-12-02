@@ -32,7 +32,6 @@ class Mook
      * @ORM\JoinTable(name="mook_shared_users")
      */
     private Collection $sharedUsers;
-
     /**
      * @ORM\Column(type="string", length=255)
      */

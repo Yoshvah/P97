@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { login } from 'actions/auth';
+import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import Navbar from 'components/Navbar';
 import Footer from 'components/Footer';
 import "../Login/login.css";
+import axios from 'axios'; // Import axios if you are not using fetch
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -20,9 +20,33 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      await dispatch(login(username, password));
-      navigate('/'); // Redirect to the home page on successful login
+      // Make an API request to your backend to log in
+      const response = await axios.post('http://localhost:8000/api/user/login', {
+        username,
+        password,
+      });
+
+      // Extract token and user information from the response
+      const { token, user } = response.data;
+
+      // Store the token and user ID in localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('userId', user.id);
+
+      // Optionally, you can dispatch a Redux action to store user info
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: {
+          id: user.id,
+          username: user.username,
+          token: token,
+        },
+      });
+
+      // Redirect to the home page or dashboard
+      navigate('/');
     } catch (err) {
+      // Handle login errors
       setError(err.response?.data || { message: 'Login failed. Please try again.' });
     }
   };

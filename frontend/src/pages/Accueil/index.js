@@ -4,7 +4,10 @@ import Navbar from "components/Navbar"
 import HomeImg from "../../images/home.png";
 import './index.css';
 function Accueil() {
+  console.log('SKIP_PREFLIGHT_CHECK:', process.env.SKIP_PREFLIGHT_CHECK);
+
   return (
+    
 
     <div className="sub_page">
       <Navbar />

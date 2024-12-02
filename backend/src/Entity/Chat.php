@@ -45,9 +45,14 @@ class Chat
      */
     private bool $isRead = false;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $image = null;
+
     public function __construct()
     {
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new \DateTime(); // Use DateTime instead of DateTimeImmutable
         $this->isRead = false;
     }
 
@@ -107,6 +112,20 @@ class Chat
     public function markAsRead(): self
     {
         $this->isRead = true;
+
+        return $this;
+    }
+
+    // Getter and setter for the 'image' property
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
 
         return $this;
     }

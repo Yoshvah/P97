@@ -50,6 +50,8 @@ import Signup from "./pages/Signup";
 import Main from "pages/Main";
 function App() {
   const { isLoggedIn } = useSelector((state) => state.auth);
+  console.log('All Environment Variables:', process.env);
+
 
   return (
     <Router>

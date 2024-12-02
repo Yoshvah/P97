@@ -71,4 +71,16 @@ class UserRepository extends ServiceEntityRepository
         $this->_em->persist($user);
         $this->_em->flush();
     }
+    // src/Repository/UserRepository.php
+
+public function findUsernameById(int $id): ?string
+{
+    return $this->createQueryBuilder('u')
+        ->select('u.username')  // Only select the username field
+        ->where('u.id = :id')   // Filter by the provided ID
+        ->setParameter('id', $id)
+        ->getQuery()
+        ->getSingleScalarResult();  // Return a single scalar result (the username)
+}
+
 }

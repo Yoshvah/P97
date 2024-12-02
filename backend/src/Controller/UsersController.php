@@ -1,38 +1,112 @@
 <?php
+// In UsersController.php
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\User;
-use App\Repository\UserRepository;
 
 class UsersController extends AbstractController
 {
-    private $manager;
     private $repository;
-    private $jwtManager;
 
-    // Constructor for injecting dependencies
-    public function __construct(
-        EntityManagerInterface $manager,
-        JWTTokenManagerInterface $jwtManager,
-        UserRepository $userRepository
-    ) {
-        $this->manager = $manager;
-        $this->jwtManager = $jwtManager;
-        $this->repository = $userRepository;
+    public function __construct(UserRepository $repository)
+    {
+        $this->repository = $repository;
     }
 
     /**
-     * @Route("/api/profile", name="current_user", methods={"POST"})
-     * 
-     * This method handles retrieving the current user's profile based on the token provided in the request body.
+     * @Route("/api/admin/getuser", name="get_user", methods={"GET"})
+     */
+    public function getUsers(): JsonResponse
+    {
+        $users = $this->repository->findAll();
+        return new JsonResponse($users, Response::HTTP_OK);
+    }
+
+    /**
+     * @Route("/api/admin/adduser", name="add_user", methods={"POST"})
+     */
+    public function addUser(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        
+        if (!isset($data['username'], $data['email'], $data['phone'], $data['address'], $data['birthday'], $data['slogan'], $data['interest'])) {
+            return new JsonResponse(['error' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user = new User();
+        $user->setUsername($data['username']);
+        $user->setEmail($data['email']);
+        $user->setPhone($data['phone']);
+        $user->setAddress($data['address']);
+        $user->setBirthday(new \DateTime($data['birthday']));
+        $user->setSlogan($data['slogan']);
+        $user->setInterest($data['interest']);
+        
+        if (isset($data['profilePicture'])) {
+            $user->setProfilePicture($data['profilePicture']);
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return new JsonResponse($user, Response::HTTP_CREATED);
+    }
+
+    /**
+     * @Route("/api/admin/deleteuser/{id}", name="delete_user", methods={"DELETE"})
+     */
+    public function deleteUser(int $id): JsonResponse
+    {
+        $user = $this->repository->find($id);
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($user);
+        $entityManager->flush();
+
+        return new JsonResponse(['message' => 'User deleted successfully'], Response::HTTP_OK);
+    }
+
+    /**
+     * @Route("/api/admin/updateuser/{id}", name="update_user", methods={"PUT"})
+     */
+    public function updateUser(int $id, Request $request): JsonResponse
+    {
+        $user = $this->repository->find($id);
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['username'])) $user->setUsername($data['username']);
+        if (isset($data['email'])) $user->setEmail($data['email']);
+        if (isset($data['phone'])) $user->setPhone($data['phone']);
+        if (isset($data['address'])) $user->setAddress($data['address']);
+        if (isset($data['birthday'])) $user->setBirthday(new \DateTime($data['birthday']));
+        if (isset($data['slogan'])) $user->setSlogan($data['slogan']);
+        if (isset($data['interest'])) $user->setInterest($data['interest']);
+        if (isset($data['profilePicture'])) $user->setProfilePicture($data['profilePicture']);
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->flush();
+
+        return new JsonResponse($user, Response::HTTP_OK);
+    }
+    /**
+     * @Route("/api/profile", name="current_user", methods={"GET"})
      */
     public function getCurrentUser(Request $request): JsonResponse
     {
@@ -80,34 +154,5 @@ class UsersController extends AbstractController
         ];
 
         return new JsonResponse($data, Response::HTTP_OK);
-    }
-
-    /**
-     * @Route("/user/{id}", name="delete-user", methods={"DELETE"})
-     * 
-     * This method handles the deletion of a user based on their ID.
-     */
-    public function deleteUser($id): JsonResponse
-    {
-        $user = $this->repository->findOneBy(['id' => $id]);
-
-        if (!$user) {
-            return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $this->manager->remove($user);
-        $this->manager->flush();
-
-        return new JsonResponse(['status' => 'User deleted!'], Response::HTTP_OK);
-    }
-
-    /**
-     * @Route("/api/user/{any}", name="options_user", methods={"OPTIONS"})
-     * 
-     * This is a placeholder for handling OPTIONS requests for user-related routes.
-     */
-    public function options(): Response
-    {
-        return new Response('', Response::HTTP_OK);
     }
 }
