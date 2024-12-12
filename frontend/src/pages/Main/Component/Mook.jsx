@@ -1,92 +1,109 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from 'react-bootstrap';
 import { EditorContent, useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit'; // StarterKit includes Image, Link, Bold, Italic, etc.
+import StarterKit from '@tiptap/starter-kit';
+import Image from '@tiptap/extension-image';
+import Link from '@tiptap/extension-link';
+import Placeholder from '@tiptap/extension-placeholder';
+import TextAlign from '@tiptap/extension-text-align';
+import axios from 'axios';
 import '../Style/Mook.css';
 
-const EditorComponent = ({ editor }) => {
-  return (
-    <div id="editorjs">
-      {editor ? (
-        <EditorContent editor={editor} />
-      ) : (
-        <p>Loading editor...</p>
-      )}
-    </div>
-  );
-};
+const EditorComponent = ({ editor }) => (
+  <div id="editorjs" className="editor-container">
+    {editor ? <EditorContent editor={editor} /> : <p>Loading editor...</p>}
+  </div>
+);
 
 const Mook = () => {
   const [mooks, setMooks] = useState([]);
   const [selectedMook, setSelectedMook] = useState(null);
   const [newTitle, setNewTitle] = useState('');
-  const [content, setContent] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  const [content, setContent] = useState('');
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [showChat, setShowChat] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const token = localStorage.getItem('token');
 
-  // TipTap editor setup
   const editor = useEditor({
-    extensions: [StarterKit], // Includes Link, Image, Bold, Italic, etc.
-    content: '<p>Start writing your amazing story here...</p>',
+    extensions: [
+      StarterKit,
+      Image,
+      Link,
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      Placeholder.configure({
+        placeholder: 'Start writing your note here...',
+      }),
+    ],
+    content: selectedMook?.content || '<p>Start writing your note...</p>',
     onUpdate: ({ editor }) => {
-      const savedData = editor.getJSON();
-      console.log('Editor data:', savedData);
+      setContent(editor.getHTML());
     },
   });
 
-  // Fetch Mooks on component mount
   useEffect(() => {
     const fetchMook = async () => {
       try {
-        const response = await fetch('/api/mook');
-        const data = await response.json();
-        setMooks(data);
+        const response = await axios.get('http://localhost:8000/api/mooks', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMooks(response.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching users:', error);
       }
     };
     fetchMook();
-  }, []);
+  }, [token]);
 
-  // Handle saving a new Mook
   const handleSaveCard = async () => {
-    if (!newTitle.trim()) return;
+    if (!newTitle.trim()) {
+      alert('Title cannot be empty!');
+      return;
+    }
 
     const newCard = {
       title: newTitle,
-      mooklink: 'https://example.com', // Placeholder for a link
       isPrivate,
-      content,
+      contentData: content,
     };
 
+    setLoading(true);
     try {
-      const response = await fetch('/api/register/mook', {
+      const response = await fetch('http://localhost:8000/api/register/mook', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCard),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save Mook');
+        throw new Error('Failed to save Mook. Please try again.');
       }
 
       const data = await response.json();
-      setSelectedMook(null);
-      setMooks((prevMooks) => [...prevMooks, { ...newCard, mid: data.mook_id }]);
 
+      setMooks((prevMooks) => [
+        ...prevMooks,
+        { ...newCard, id: data.mook_id, shareLink: data.shareLink },
+      ]);
+
+      setSelectedMook(null);
+      setNewTitle('');
+      setContent('');
+      alert(`Note saved successfully! Share Link: ${data.shareLink}`);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error saving Mook:', error);
+      alert('Error saving note. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Handle sending a message to AI
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    // Add user message
     const userMessage = {
       sender: 'user',
       text: newMessage,
@@ -102,9 +119,7 @@ const Mook = () => {
         body: JSON.stringify({ message: newMessage }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch AI response');
-      }
+      if (!response.ok) throw new Error('Failed to fetch AI response');
 
       const data = await response.json();
       const aiResponse = {
@@ -114,7 +129,6 @@ const Mook = () => {
       };
 
       setMessages((prevMessages) => [...prevMessages, aiResponse]);
-
     } catch (error) {
       console.error('Error:', error);
     }
@@ -122,77 +136,108 @@ const Mook = () => {
 
   return (
     <div className="main">
-      <div className="button-container">
-        <Button variant="outline-dark" id="new-item" onClick={() => setSelectedMook({})}>
-          Add New Item
-        </Button>
-      </div>
-
-      {/* Display Mooks */}
-      {mooks.length > 0 ? (
-        <div className="cards">
-          {mooks.map((mookItem, index) => (
-            <div className="card" key={index} onClick={() => setSelectedMook(mookItem)}>
-              <img src="https://img.freepik.com/free-photo/nature-design-with-bokeh-effect_1048-1882.jpg" alt="mook" />
-              <div className="card-content">
-                <h2>{mookItem.title}</h2>
-                <p dangerouslySetInnerHTML={{ __html: mookItem.content || 'No description available' }}></p>
-                <a href="#" className="button">
-                  Find out more
-                  <span className="material-symbols-outlined">arrow_right_alt</span>
-                </a>
-              </div>
-            </div>
-          ))}
+      {!selectedMook && (
+        <div className="button-container">
+          <Button
+            variant="outline-dark"
+            id="new-item"
+            onClick={() => {
+              setSelectedMook({});
+              setNewTitle('');
+              setIsPrivate(false);
+              editor?.commands.clearContent();
+            }}
+          >
+            Add New Note
+          </Button>
         </div>
-      ) : (
-        <p>No cards available</p>
       )}
+      {loading && <div className="loader">Loading...</div>}
 
-      {/* Mook Editing Form */}
-      {selectedMook && (
-        <div className="cardform">
-          <div className="form-containerr">
-            <div className="form-actions">
-              <button className="btn primary" onClick={handleSaveCard}>Save</button>
-              <button className="btn secondary" onClick={() => setSelectedMook(null)}>Cancel</button>
-            </div>
-            <h2 className="form-title">Editing: {newTitle}</h2>
-            <label htmlFor="formTitle">Title:</label>
-            <input
-              type="text"
-              id="formTitle"
-              className="form-input"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              placeholder="Enter title"
-            />
-            <div className="form-group">
-              <input
-                type="checkbox"
-                id="formPrivate"
-                checked={isPrivate}
-                onChange={(e) => setIsPrivate(e.target.checked)}
-                className="checkbox-input"
-              />
-              <label htmlFor="formPrivate" className="checkbox-label">Private</label>
-            </div>
-            <div className="form-group">
-              <label htmlFor="formContent">Content:</label>
-              <EditorComponent editor={editor} />
-            </div>
+      {!selectedMook && mooks.length > 0 && (
+        <div className="container-fluid mt-4">
+          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {mooks.map((mookItem, index) => (
+              <div className="col" key={index}>
+                <div
+                  className="card shadow-sm"
+                  onClick={() => {
+                    setSelectedMook(mookItem);
+                    setNewTitle(mookItem.title);
+                    setIsPrivate(mookItem.isPrivate || false);
+                    editor?.commands.setContent(mookItem.content || '');
+                  }}
+                >
+                  <img
+                    src="https://img.freepik.com/free-photo/nature-design-with-bokeh-effect_1048-1882.jpg"
+                    alt="mook"
+                    className="card-img-top"
+                  />
+                  <div className="card-body">
+                    <h2>{mookItem.title}</h2>
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: mookItem.content || 'No description available',
+                      }}
+                    ></div>
+                    <a href="#" className="btn btn-primary">
+                      Find out more
+                      <span className="material-icons">arrow_right_alt</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* AI Chat Button and Chat Interface */}
+      {selectedMook && (
+        <div className="editor-form">
+          <div className="form-actions">
+            <button className="btn primary" onClick={handleSaveCard}>
+              Save
+            </button>
+            <button
+              className="btn secondary"
+              onClick={() => {
+                setSelectedMook(null);
+                setNewTitle('');
+                editor?.commands.clearContent();
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+          <input
+            type="text"
+            id="note-title"
+            className="note-title-input"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder="Enter title"
+          />
+          <div>
+            <label>
+              <input
+                type="checkbox"
+                checked={isPrivate}
+                onChange={(e) => setIsPrivate(e.target.checked)}
+              />{' '}
+              Private
+            </label>
+          </div>
+          <EditorComponent editor={editor} />
+        </div>
+      )}
+
       <div className="floating-container">
         <div className="floating-button" onClick={() => setShowChat(!showChat)}>
           <i className="fas fa-robot"></i>
         </div>
         {showChat && (
           <div className="chat-container">
-            <h3 className='AItitle'>Chat with AI</h3>
+            <h3 className="AItitle">Chat with AI</h3>
             <hr />
             <ul className="chat-messages">
               {messages.map((msg, index) => (

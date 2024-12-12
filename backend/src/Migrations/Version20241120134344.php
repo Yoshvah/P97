@@ -40,6 +40,8 @@ final class Version20241120134344 extends AbstractMigration
         $this->addSql('ALTER TABLE mook ADD CONSTRAINT FK_9386B3677E3C61F9 FOREIGN KEY (owner_id) REFERENCES users (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE mook_shared_users ADD CONSTRAINT FK_758EB179E0EAC368 FOREIGN KEY (mook_id) REFERENCES mook (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('ALTER TABLE mook_shared_users ADD CONSTRAINT FK_758EB179A76ED395 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE chat ADD image VARCHAR(255) DEFAULT NULL');
+
     }
 
     public function down(Schema $schema): void
@@ -58,5 +60,8 @@ final class Version20241120134344 extends AbstractMigration
         $this->addSql('DROP TABLE mook');
         $this->addSql('DROP TABLE mook_shared_users');
         $this->addSql('DROP TABLE users');
+        $this->addSql('ALTER TABLE chat DROP image');
+
     }
+
 }

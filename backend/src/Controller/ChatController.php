@@ -51,48 +51,53 @@ class ChatController
         return new JsonResponse($data, Response::HTTP_OK);
     }
 
-    /**
-     * @Route("/api/user-chats", name="get_chat_messages", methods={"GET"})
-     */
-    public function getChatMessages(Request $request): JsonResponse
-    {
-        $senderId = $request->query->get('senderId');
-        $receiverId = $request->query->get('receiverId');
+/**
+ * @Route("/api/chats", name="get_chat_messages", methods={"GET"})
+ */
+public function getChatMessages(Request $request): JsonResponse
+{
+    $senderId = $request->query->get('sender_id');
+    $receiverId = $request->query->get('receiver_id');
 
-        if (!$senderId || !$receiverId) {
-            return new JsonResponse(['message' => 'Missing senderId or receiverId'], Response::HTTP_BAD_REQUEST);
-        }
-
-        $sender = $this->userRepository->find($senderId);
-        $receiver = $this->userRepository->find($receiverId);
-
-        if (!$sender || !$receiver) {
-            return new JsonResponse(['message' => 'Sender or receiver not found'], Response::HTTP_NOT_FOUND);
-        }
-
-        $chats = $this->chatRepository->findMessagesBetweenUsers($sender, $receiver);
-
-        $data = array_map(function (Chat $chat) {
-            return [
-                'id' => $chat->getId(),
-                'content' => $chat->getContent(),
-                'sender' => $chat->getSender()->getUsername(),
-                'receiver' => $chat->getRecipient()->getUsername(),
-                'image' => $chat->getImage(),
-                'timestamp' => $chat->getCreatedAt()->format('Y-m-d H:i:s'),
-            ];
-        }, $chats);
-
-        return new JsonResponse($data, Response::HTTP_OK);
+    if (!$senderId || !$receiverId) {
+        return new JsonResponse(['message' => 'Missing sender_id or receiver_id'], Response::HTTP_BAD_REQUEST);
     }
 
-    /**
+    $sender = $this->userRepository->find($senderId);
+    $receiver = $this->userRepository->find($receiverId);
+
+    if (!$sender || !$receiver) {
+        return new JsonResponse(['message' => 'Sender or receiver not found'], Response::HTTP_NOT_FOUND);
+    }
+
+    // Fetch messages between the sender and receiver
+    $chats = $this->chatRepository->findByUsers($sender, $receiver);
+
+    // Format messages for response
+    $messages = array_map(function ($chat) {
+        return [
+            'id' => $chat->getId(),
+            'content' => $chat->getContent(),
+            'sender' => $chat->getSender()->getUsername(),
+            'receiver' => $chat->getRecipient()->getUsername(),
+            'image' => $chat->getImage(), // Will be null if no image is set
+            'timestamp' => $chat->getCreatedAt()->format('Y-m-d H:i:s'),
+        ];
+    }, $chats);
+
+    return new JsonResponse([
+        'message' => 'Messages retrieved successfully',
+        'messages' => $messages,
+    ], Response::HTTP_OK);
+}
+
+ /**
  * @Route("/api/user-chats", name="send_chat_message", methods={"POST"})
  */
 public function sendChatMessage(Request $request): JsonResponse
 {
     $data = $request->request->all();
-    $file = $request->files->get('image');
+    $file = $request->files->get('image'); // Retrieve the image file if present
 
     $senderId = $data['sender_id'] ?? null;
     $receiverId = $data['receiver_id'] ?? null;
@@ -104,28 +109,24 @@ public function sendChatMessage(Request $request): JsonResponse
 
     $sender = $this->userRepository->find($senderId);
     $receiver = $this->userRepository->find($receiverId);
-    $senderUsername = $this->userRepository->find($senderId)->getUsername();
-    $receiverUsername = $this->userRepository->find($receiverId)->getUsername();
 
     if (!$sender || !$receiver) {
         return new JsonResponse(['message' => 'Sender or receiver not found'], Response::HTTP_NOT_FOUND);
     }
 
-    // Get usernames from User entities
-    $senderUsername = $sender->getUsername();
-    $receiverUsername = $receiver->getUsername();
-
-    // Create a new chat message
+    // Create a new chat message (createdAt is automatically set by the constructor)
     $chat = new Chat();
     $chat->setSender($sender);
     $chat->setRecipient($receiver);
     $chat->setContent($content);
-    $chat->setCreatedAt(new \DateTime());
 
+    // Handle the optional image file
     if ($file) {
         $fileName = uniqid() . '.' . $file->guessExtension();
         $file->move('uploads/messages', $fileName);
         $chat->setImage('/uploads/messages/' . $fileName);
+    } else {
+        $chat->setImage(null); // Set to null if no image is provided
     }
 
     // Save the chat message to the database
@@ -138,12 +139,27 @@ public function sendChatMessage(Request $request): JsonResponse
         'message_data' => [
             'id' => $chat->getId(),
             'content' => $chat->getContent(),
-            'sender' => $senderUsername,   
-            'receiver' => $receiverUsername,  
-            'image' => $chat->getImage(),
+            'sender' => $sender->getUsername(),
+            'receiver' => $receiver->getUsername(),
+            'image' => $chat->getImage(),  // Will return null if no image is set
             'timestamp' => $chat->getCreatedAt()->format('Y-m-d H:i:s'),
         ]
     ], Response::HTTP_CREATED);
 }
+        public function getUsers(): JsonResponse
+    {
+        $users = $this->userRepository->findAll();
+
+        $data = array_map(function (User $user) {
+            return [
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'profilePicture' => $user->getProfilePicture(),
+            ];
+        }, $users);
+
+        return new JsonResponse($data, Response::HTTP_OK);
+    }
+
 
 }

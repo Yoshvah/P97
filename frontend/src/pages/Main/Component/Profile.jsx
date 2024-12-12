@@ -1,10 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import "../Style/Profile.css";
 import axios from 'axios';
+import "../Style/Profile.css";
+import { Modal, Form, Button } from 'react-bootstrap';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [updatedUser, setUpdatedUser] = useState({
+    username: '',
+    email: '',
+    phone: '',
+    address: '',
+    birthday: '',
+    slogan: '',
+    interest: [],
+    profilePicture: '',
+    sexe: '', // Added `sexe` field
+  });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -17,10 +30,12 @@ const Profile = () => {
 
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/profile?userId=${userId}`, {
+        const response = await axios.get(`http://localhost:8000/api/profile/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log(response.data); // Check data here
         setUser(response.data);
+        setUpdatedUser(response.data); // Initialize updatedUser with the current user data
       } catch (error) {
         setError('Failed to fetch user profile. Please try again.');
       }
@@ -28,6 +43,51 @@ const Profile = () => {
 
     fetchUser();
   }, []);
+  
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedUser((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleInterestChange = (e) => {
+    const interests = e.target.value.split(',').map((interest) => interest.trim());
+    setUpdatedUser((prevState) => ({
+      ...prevState,
+      interest: interests,
+    }));
+  };
+
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setUpdatedUser((prevState) => ({
+        ...prevState,
+        profilePicture: URL.createObjectURL(file),
+      }));
+    }
+  };
+
+  const handleSubmit = async () => {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    try {
+      const response = await axios.put(
+        `http://localhost:8000/api/admin/updateuser/${userId}`,
+        updatedUser,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setUser(response.data); // Update the profile with the new data
+      setShowModal(false); // Close the modal after updating
+    } catch (error) {
+      setError('Failed to update profile. Please try again.');
+    }
+  };
 
   if (error) return <div className="error-message">{error}</div>;
   if (!user) return <div className="loading">Loading...</div>;
@@ -41,11 +101,15 @@ const Profile = () => {
         </ol>
       </nav>
 
+      <div>
+        <button className="btn btn-primary" onClick={() => setShowModal(true)}>Edit Profile</button>
+      </div>
+
       <div className="profile-card">
         <div className="profile-header">
-          <img 
-            src={user.profilePicture || "https://bootdey.com/img/Content/avatar/avatar7.png"} 
-            alt={user.username} 
+          <img
+            src={user.profilePicture || "https://bootdey.com/img/Content/avatar/avatar7.png"}
+            alt={user.username}
             className="profile-picture"
           />
           <h2>{user.username}</h2>
@@ -59,152 +123,137 @@ const Profile = () => {
           </div>
           <div className="detail-row">
             <span className="label">Email:</span>
-            <span className="value">{user.email}</span>
+            <span className="value">{user.email || "No Email Provided"}</span>
           </div>
           <div className="detail-row">
             <span className="label">Phone:</span>
-            <span className="value">{user.phone}</span>
+            <span className="value">{user.phone || "No Phone Provided"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="label">Sexe:</span>
+            <span className="value">{user.sexe || "No sexe Provided"}</span>
           </div>
           <div className="detail-row">
             <span className="label">Date of Birth:</span>
-            <span className="value">{user.birthday}</span>
+            <span className="value">
+              {user.birthday ? new Date(user.birthday).toLocaleDateString() : "No Birthday Provided"}
+            </span>
           </div>
           <div className="detail-row">
             <span className="label">Address:</span>
-            <span className="value">{user.address}</span>
+            <span className="value">{user.address || "No Address Provided"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="label">Interests:</span>
+            <span className="value">{user.interest.length ? user.interest.join(", ") : "No Interests"}</span>
+          </div>
+          <div className="detail-row">
+            <span className="label">Gender:</span>
+            <span className="value">{user.sexe || "Not Specified"}</span> {/* Display gender */}
           </div>
         </div>
       </div>
+
+      {/* Modal for editing the profile */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Profile</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formUsername">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                name="username"
+                value={updatedUser.username}
+                onChange={handleEditChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formEmail">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                name="email"
+                value={updatedUser.email}
+                onChange={handleEditChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formPhone">
+              <Form.Label>Phone</Form.Label>
+              <Form.Control
+                type="text"
+                name="phone"
+                value={updatedUser.phone}
+                onChange={handleEditChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formAddress">
+              <Form.Label>Address</Form.Label>
+              <Form.Control
+                type="text"
+                name="address"
+                value={updatedUser.address}
+                onChange={handleEditChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formBirthday">
+              <Form.Label>Birthday</Form.Label>
+              <Form.Control
+                type="date"
+                name="birthday"
+                value={updatedUser.birthday}
+                onChange={handleEditChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formSlogan">
+              <Form.Label>Slogan</Form.Label>
+              <Form.Control
+                type="text"
+                name="slogan"
+                value={updatedUser.slogan}
+                onChange={handleEditChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formInterest">
+              <Form.Label>Interests (comma separated)</Form.Label>
+              <Form.Control
+                type="text"
+                name="interest"
+                value={updatedUser.interest.join(', ')}
+                onChange={handleInterestChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formSexe">
+              <Form.Label>Gender</Form.Label>
+              <Form.Control
+                as="select"
+                name="sexe"
+                value={updatedUser.sexe}
+                onChange={handleEditChange}
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </Form.Control>
+            </Form.Group>
+            <Form.Group controlId="formProfilePicture">
+              <Form.Label>Profile Picture</Form.Label>
+              <Form.Control
+                type="file"
+                onChange={handleProfilePictureChange}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
+          <Button variant="primary" onClick={handleSubmit}>Save Changes</Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
 
 export default Profile;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React, { useEffect, useState } from 'react';
-// import "../Style/Profile.css";
-// import axios from 'axios';
-
-// const Profile = () => {
-//   const [user, setUser] = useState(null);
-//   const [error, setError] = useState(null);
-
-//   // Fetch user profile data
-//   useEffect(() => {
-//     const token = localStorage.getItem('token'); // Retrieve token from localStorage
-//     const userId = localStorage.getItem('userId'); // Retrieve userId from localStorage
-
-//     if (!token || !userId) {
-//       setError('You must be logged in to view your profile.');
-//       return;
-//     }
-
-//     const fetchUser = async () => {
-//       try {
-//         const response = await axios.get(`http://localhost:8000/api/profile?userId=${userId}`, {
-//           headers: {
-//             Authorization: `Bearer ${token}`, // Send token as Bearer in Authorization header
-//           },
-//         });
-
-//         setUser(response.data); // Set the user data
-//       } catch (error) {
-//         console.error('Error fetching user profile:', error);
-//         setError('Failed to fetch user profile. Please try again.');
-//       }
-//     };
-
-//     fetchUser();
-//   }, []);
-
-//   if (error) return <div className="error">{error}</div>;
-//   if (!user) return <div>Loading...</div>;
-
-//   return (
-//     <>
-//       <div className="container">
-//         <div className="main-body">
-//           {/* Breadcrumb */}
-//           <nav aria-label="breadcrumb" className="main-breadcrumb">
-//             <ol className="breadcrumb">
-//               <li className="breadcrumb-item"><a href="/">Home</a></li>
-//               <li className="breadcrumb-item active" aria-current="page">User Profile</li>
-//             </ol>
-//           </nav>
-
-//           {/* Profile Details */}
-//           <div className="row gutters-sm">
-//             <div className="col-md-4 mb-3">
-//               <div className="card">
-//                 <div className="card-body">
-//                   <div className="d-flex flex-column align-items-center text-center">
-//                     <img 
-//                       src={user?.profilePicture || "https://bootdey.com/img/Content/avatar/avatar7.png"} 
-//                       alt={`${user?.username || "Username"}`} 
-//                       className="rounded-circle" 
-//                       width="150" 
-//                     />
-//                     <div className="mt-3">
-//                       <h4>{`${user?.username || "username"}`}</h4>
-//                       <p className="text-secondary mb-1">{user?.slogan || "No Slogan"}</p>
-//                       <p className="text-muted font-size-sm">{user?.address || "No Address"}</p>
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-
-//             <div className="col-md-8">
-//               <div className="card mb-3">
-//                 <div className="card-body">
-//                   <div className="row">
-//                     <div className="col-sm-3"><h6 className="mb-0">Full Name</h6></div>
-//                     <div className="col-sm-9 text-secondary">{`${user.username}`}</div>
-//                   </div>
-//                   <hr />
-//                   <div className="row">
-//                     <div className="col-sm-3"><h6 className="mb-0">Email</h6></div>
-//                     <div className="col-sm-9 text-secondary">{user.email}</div>
-//                   </div>
-//                   <hr />
-//                   <div className="row">
-//                     <div className="col-sm-3"><h6 className="mb-0">Phone</h6></div>
-//                     <div className="col-sm-9 text-secondary">{user.phone}</div>
-//                   </div>
-//                   <hr />
-//                   <div className="row">
-//                     <div className="col-sm-3"><h6 className="mb-0">Date of Birth</h6></div>
-//                     <div className="col-sm-9 text-secondary">{user.birthday}</div>
-//                   </div>
-//                   <hr />
-//                   <div className="row">
-//                     <div className="col-sm-3"><h6 className="mb-0">Address</h6></div>
-//                     <div className="col-sm-9 text-secondary">{user.address}</div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default Profile;

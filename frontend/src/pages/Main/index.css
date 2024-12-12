@@ -384,6 +384,7 @@ a:focus {
     background-color: white;
     height: auto; /* Full viewport height */
     min-height: 90vh;
+    margin-top: 0;
 }
 .op{
   position: absolute;

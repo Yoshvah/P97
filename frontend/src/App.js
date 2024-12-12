@@ -60,22 +60,21 @@ function App() {
           {/* Public Routes */}
           <Route
             path="/login"
-            element={isLoggedIn ? <Navigate to="/" /> : <Login />}  // If logged in, redirect to home
+            element=<Login /> 
           />
           <Route
             path="/signup"
-            element={isLoggedIn ? <Navigate to="/" /> : <Signup />}  // If logged in, redirect to home
+            element=<Signup />
           />
           <Route
             path="/Accueil"
-            element={isLoggedIn ? <Navigate to="/Accueil" /> : <Accueil />}  // If logged in, redirect to home
+            element=<Accueil />
           />
-
-          {/* Private Route */}
           <Route
             path="/"
-            element={isLoggedIn ? <Navigate to="/Mook/message" /> : <Navigate to="/Accueil" />}
+            element=<Accueil />
           />
+
           <Route
             path="/Mook/*"
             element={isLoggedIn ? <Main /> : <Navigate to="/login" />}

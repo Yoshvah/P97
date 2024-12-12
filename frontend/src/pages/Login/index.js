@@ -44,7 +44,7 @@ const Login = () => {
       });
 
       // Redirect to the home page or dashboard
-      navigate('/');
+      navigate('/Mook/message');
     } catch (err) {
       // Handle login errors
       setError(err.response?.data || { message: 'Login failed. Please try again.' });

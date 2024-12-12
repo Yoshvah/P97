@@ -82,7 +82,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $profilePicture = null;
-
+    /**
+     * @ORM\Column(type="string", length=10, nullable=true)
+     */
+    private ?string $sexe = null;
+    
+    public function getSexe(): ?string
+    {
+        return $this->sexe;
+    }
+    
+    public function setSexe(?string $sexe): self
+    {
+        $this->sexe = $sexe;
+        return $this;
+    }
 
 
     public function __construct()

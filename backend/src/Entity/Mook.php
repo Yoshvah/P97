@@ -1,11 +1,8 @@
 <?php
 namespace App\Entity;
 
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\MookRepository;
-use App\Entity\User;
-use Symfony\Component\Uid\Uuid;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
@@ -16,22 +13,11 @@ class Mook
 {
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
+     * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
     private ?int $id = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class)
-     * @ORM\JoinColumn(name="owner_id", referencedColumnName="id")
-     */
-    private ?User $owner = null;
-
-    /**
-     * @ORM\ManyToMany(targetEntity=User::class)
-     * @ORM\JoinTable(name="mook_shared_users")
-     */
-    private Collection $sharedUsers;
     /**
      * @ORM\Column(type="string", length=255)
      */
@@ -48,7 +34,7 @@ class Mook
     private bool $isPrivate = true;
 
     /**
-     * @ORM\Column(type="string", length=36, unique=true, nullable=true)
+     * @ORM\Column(type="string", length=5, unique=true, nullable=true)
      */
     private ?string $shareLink = null;
 
@@ -64,27 +50,15 @@ class Mook
 
     public function __construct()
     {
-        $this->sharedUsers = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    // Getters and setters...
+    // Getters and Setters...
 
-    public function getMid(): ?int
+    public function getId(): ?int
     {
-        return $this->mid;
-    }
-
-    public function getOwner(): ?User
-    {
-        return $this->owner;
-    }
-
-    public function setOwner(User $owner): self
-    {
-        $this->owner = $owner;
-        return $this;
+        return $this->id;
     }
 
     public function getTitle(): ?string
@@ -98,17 +72,11 @@ class Mook
         return $this;
     }
 
-    /**
-     * Get the content data (JSON field with images and text)
-     */
     public function getContentData(): array
     {
         return $this->contentData;
     }
 
-    /**
-     * Set the content data (JSON field with images and text)
-     */
     public function setContentData(array $contentData): self
     {
         $this->contentData = $contentData;
@@ -134,7 +102,7 @@ class Mook
 
     public function generateShareLink(): self
     {
-        $this->shareLink = Uuid::v4()->toRfc4122(); // Generates a unique UUID
+        $this->shareLink = substr(md5(uniqid()), 0, 5); // Generates a unique 5-character string
         return $this;
     }
 
@@ -146,33 +114,5 @@ class Mook
     public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
-    }
-
-    public function getSharedUsers(): Collection
-    {
-        return $this->sharedUsers;
-    }
-
-    public function addSharedUser(User $user): self
-    {
-        if (!$this->sharedUsers->contains($user)) {
-            $this->sharedUsers->add($user);
-        }
-        return $this;
-    }
-
-    public function removeSharedUser(User $user): self
-    {
-        $this->sharedUsers->removeElement($user);
-        return $this;
-    }
-
-    public function cloneForUser(User $user): self
-    {
-        $clone = new self();
-        $clone->setOwner($user)
-              ->setTitle($this->getTitle())
-              ->setContentData($this->getContentData());
-        return $clone;
     }
 }

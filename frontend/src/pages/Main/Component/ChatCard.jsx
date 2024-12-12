@@ -4,6 +4,7 @@ import '../Style/Message.css';
 import { FaPaperclip, FaPaperPlane } from 'react-icons/fa';
 
 const ChatCard = () => {
+  // State variables
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [imageFile, setImageFile] = useState(null);
@@ -11,11 +12,12 @@ const ChatCard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [receiverId, setReceiverId] = useState(null);
   const [error, setError] = useState(null);
-  const [messageError, setMessageError] = useState(''); // New state for message error
+  const [messageError, setMessageError] = useState('');
 
-  // Get token and userId from localStorage
+  // Retrieve token and userId from localStorage
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
+  const username = localStorage.getItem('username');
 
   // Fetch users on component mount
   useEffect(() => {
@@ -43,41 +45,46 @@ const ChatCard = () => {
 
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/user-chats/?receiverId=${receiverId}?senderId=${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await axios.get('http://localhost:8000/api/chats', {
+          params: {
+            sender_id: userId,
+            receiver_id: receiverId,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-        setMessages(response.data);
-      } catch (error) {
-        console.error('Error fetching messages:', error);
+        setMessages(response.data.messages);
+      } catch (err) {
+        console.error('Error fetching messages:', err);
+        setMessageError('Failed to fetch messages.');
       }
     };
-    fetchMessages();
-  }, [receiverId, token]);
 
-  // Handle selecting a user
+    fetchMessages();
+  }, [receiverId, token, userId]);
+
+  // Handle user selection
   const handleUserClick = (user) => {
     setSelectedUser(user);
     setReceiverId(user.id);
-    setMessageError(''); // Clear any previous error when a user is selected
+    setMessageError('');
   };
 
   // Handle sending a new message
   const handleSendMessage = async (e) => {
     e.preventDefault();
 
-    // Check if no user is selected
     if (!selectedUser) {
       setMessageError('Please select a user to chat with.');
       return;
     }
 
-    if (!newMessage.trim() && !imageFile) {
-      return;
-    }
+    if (!newMessage.trim() && !imageFile) return;
 
     const formData = new FormData();
-    formData.append('sender_id', userId); // Adding sender_id
-    formData.append('receiver_id', receiverId); // Receiver ID
+    formData.append('sender_id', userId);
+    formData.append('receiver_id', receiverId);
     formData.append('content', newMessage.trim());
     if (imageFile) formData.append('image', imageFile);
 
@@ -88,22 +95,25 @@ const ChatCard = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
+      console.log(response.formData); // Check data here
+
       setMessages([...messages, response.data.message_data]);
       setNewMessage('');
       setImageFile(null);
-      setMessageError(''); // Clear error after successfully sending the message
-    } catch (error) {
-      console.error('Error sending message:', error);
+      setMessageError('');
+    } catch (err) {
+      console.error('Error sending message:', err);
       setMessageError('Failed to send message. Please try again.');
     }
   };
 
   if (error) {
-    return <div>{error}</div>; // Show error if no token
+    return <div>{error}</div>;
   }
 
   return (
     <div className="chat-card">
+      {/* Sidebar for user selection */}
       <div className="chat-sidebar">
         <div className="user-search">
           <input type="text" className="user-search-input" placeholder="Search users..." />
@@ -122,39 +132,49 @@ const ChatCard = () => {
           ))}
         </ul>
       </div>
+
+      {/* Main chat content */}
       <div className="chat-content">
         {selectedUser && <div className="chat-header">Chatting with {selectedUser.username}</div>}
-        {messageError && <div className="message-error">{messageError}</div>} {/* Display error message if no user is selected */}
-        <div className="message-container">
-          <ul className="message-list">
-            {messages.map((msg, index) => (
-              <li key={index} className={`message-item ${msg.sender === 'You' ? 'message-right' : 'message-left'}`}>
-                <div className="message-bubble">{msg.content}</div>
-                {msg.image && <img src={msg.image} alt="Message Attachment" className="message-image" />}
-              </li>
-            ))}
-          </ul>
-          <div className="message-input-group">
-  <textarea
-    className="message-input"
-    rows="2"
-    placeholder="Type your message here..."
-    value={newMessage}
-    onChange={(e) => setNewMessage(e.target.value)}
-  />
-  <div className="file-input-group">
-    <input
-      type="file"
-      className="file-input"
-      accept="image/*"
-      onChange={(e) => setImageFile(e.target.files[0])}
-    />
-  </div>
-  <button onClick={handleSendMessage} className="send-button">
-    <FaPaperPlane />
-  </button>
-</div>
+        {messageError && <div className="message-error">{messageError}</div>}
 
+        {/* Messages */}
+        <div className="message-container">
+            <ul className="message-list">
+              {messages.map((msg, index) => (
+                <li
+                  key={index}
+                  className={`message-item ${
+                    msg.sender === username ? 'message-left' : 'message-right'
+                  }`}
+                >
+                  <div className="message-bubble"> {msg.content} Sender:{msg.sender} Me:{username}</div>
+                  {msg.image && <img src={msg.image} alt="Message Attachment" className="message-image" />}
+                </li>
+              ))}
+            </ul>
+
+          {/* Input for new message */}
+          <div className="message-input-group">
+            <textarea
+              className="message-input"
+              rows="2"
+              placeholder="Type your message here..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+            />
+            <div className="file-input-group">
+              <input
+                type="file"
+                className="file-input"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files[0])}
+              />
+            </div>
+            <button onClick={handleSendMessage} className="send-button">
+              <FaPaperPlane />
+            </button>
+          </div>
         </div>
       </div>
     </div>

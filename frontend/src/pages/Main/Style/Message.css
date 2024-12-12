@@ -1,157 +1,4 @@
-.chat-card {
-  display: flex;
-  height: 90vh;
-  background-color: #f0f2f5;
-  padding: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-}
-
-.chat-sidebar {
-  flex: 0.3;
-  background-color: #fff;
-  border-right: 1px solid #ddd;
-  padding: 10px;
-  overflow-y: auto;
-}
-
-.user-search {
-  padding: 10px;
-  background-color: #fff;
-  margin-bottom: 10px;
-}
-
-.user-search-input {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  outline: none;
-}
-
-.user-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.user-item {
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.user-item:hover {
-  background-color: #e9eff5;
-}
-
-.user-avatar img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-
-.user-info {
-  margin-left: 10px;
-}
-
-.chat-content {
-  flex: 0.7;
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
-}
-
-.chat-header {
-  padding: 12px;
-  background-color: #f7f9fb;
-  border-bottom: 1px solid #ddd;
-}
-
-.message-container {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.message-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  flex: 1;
-}
-
-.message-item {
-  margin-bottom: 8px;
-}
-
-.message-right {
-  align-self: flex-end;
-}
-
-.message-left {
-  align-self: flex-start;
-}
-
-.message-bubble {
-  padding: 10px 15px;
-  border-radius: 15px;
-  max-width: 60%;
-}
-
-.message-right .message-bubble {
-  background-color: #0078ff;
-  color: #fff;
-}
-
-.message-left .message-bubble {
-  background-color: #e4e6eb;
-  color: #333;
-}
-
-.message-input-group {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border-top: 1px solid #ddd;
-}
-
-.message-input {
-  flex: 1;
-  padding: 8px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  resize: none;
-}
-
-.send-button {
-  background-color: #0078ff;
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  margin-left: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.send-button:hover {
-  background-color: #0056d6;
-}
-              /* Add this to your Message.css */
-.message-error {
-  color: red;
-  font-size: 14px;
-  margin: 10px 0;
-  padding: 10px;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 5px;
-}
-                                                                                                                                                                                                                                                                                                                                          /* Main chat card layout */
+/* Main chat card layout */
 .chat-card {
   display: flex;
   height: 90vh;
@@ -227,6 +74,8 @@
   padding: 12px;
   background-color: #f7f9fb;
   border-bottom: 1px solid #ddd;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 /* Message container */
@@ -238,15 +87,21 @@
   flex-direction: column;
 }
 
+/* Message list */
 .message-list {
   list-style: none;
   padding: 0;
   margin: 0;
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Message items */
 .message-item {
   margin-bottom: 8px;
+  display: flex;
+  max-width: 80%;
 }
 
 .message-right {
@@ -261,17 +116,26 @@
 .message-bubble {
   padding: 10px 15px;
   border-radius: 15px;
-  max-width: 60%;
+  word-wrap: break-word;
 }
 
 .message-right .message-bubble {
   background-color: #0078ff;
   color: #fff;
+  text-align: right;
 }
 
 .message-left .message-bubble {
   background-color: #e4e6eb;
   color: #333;
+  text-align: left;
+}
+
+/* Message image (attachments) */
+.message-image {
+  margin-top: 5px;
+  max-width: 100%;
+  border-radius: 10px;
 }
 
 /* Message input group */
@@ -298,15 +162,15 @@
 /* File input button */
 .file-input-group {
   margin-left: 8px;
+  position: relative;
 }
 
 .file-input {
-  display: none; /* Hidden file input button */
+  display: none;
 }
 
-/* Custom file input button style */
 .file-input-group::before {
-  content: '📎'; /* Add paperclip icon */
+  content: '📎';
   font-size: 20px;
   cursor: pointer;
   color: #0078ff;
@@ -344,6 +208,21 @@
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
+  .chat-card {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .chat-sidebar {
+    flex: 1;
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .chat-content {
+    flex: 1;
+  }
+
   .message-input-group {
     flex-direction: column;
   }

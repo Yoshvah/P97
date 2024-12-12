@@ -55,4 +55,17 @@ class ChatRepository extends ServiceEntityRepository
             ->getQuery()
             ->execute();
     }
+    public function findByUsers($sender, $receiver)
+{
+    return $this->createQueryBuilder('c')
+        ->where('(c.sender = :sender AND c.recipient = :receiver) OR (c.sender = :receiver AND c.recipient = :sender)')
+        ->setParameters([
+            'sender' => $sender,
+            'receiver' => $receiver,
+        ])
+        ->orderBy('c.createdAt', 'ASC')
+        ->getQuery()
+        ->getResult();
+}
+
 }
