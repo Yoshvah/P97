@@ -1,8 +1,9 @@
 import { NavLink } from "react-router-dom";
-import Footer from "pages/Footer";
+import Footer from "components/Footer";
 import Navbar from "components/Navbar"
 import HomeImg from "../../images/home.png";
 import './index.css';
+import '../Main/index.css';
 function Accueil() {
   console.log('SKIP_PREFLIGHT_CHECK:', process.env.SKIP_PREFLIGHT_CHECK);
 

@@ -146,20 +146,7 @@ public function sendChatMessage(Request $request): JsonResponse
         ]
     ], Response::HTTP_CREATED);
 }
-        public function getUsers(): JsonResponse
-    {
-        $users = $this->userRepository->findAll();
 
-        $data = array_map(function (User $user) {
-            return [
-                'id' => $user->getId(),
-                'username' => $user->getUsername(),
-                'profilePicture' => $user->getProfilePicture(),
-            ];
-        }, $users);
-
-        return new JsonResponse($data, Response::HTTP_OK);
-    }
 
 
 }

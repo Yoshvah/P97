@@ -2,7 +2,9 @@ import { useNavigate } from "react-router-dom";
 import Usersetting from "../Main/Component/usersetting";
 import ChatCard from "../Main/Component/ChatCard";
 import Profile from "../Main/Component/Profile";
+import UserProfile from "./Component/UserProfile";
 import Mook from "../Main/Component/Mook";
+import Home from "../Main/Component/Home";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Route, Routes } from "react-router-dom";
 import "../Main/index.css";
@@ -12,7 +14,7 @@ import axios from 'axios';
 function Main() {
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('userId');
-  
+  const [img, setImg] = useState(null);
   const [error, setError] = useState(null);
   const [user1, setUpdatedUser1] = useState({
     username: '',
@@ -22,12 +24,12 @@ function Main() {
     birthday: '',
     slogan: '',
     interest: [],
-    profilePicture: ''
+    profilePicture: '',
+    isAdmin: false, // Added `isAdmin` field
   });
-  useEffect(() => {
-    // const token = localStorage.getItem('token');
-    // const userId = localStorage.getItem('userId');
+  const profilePicture = localStorage.getItem('profilePicture');
 
+  useEffect(() => {
     if (!token || !userId) {
       setError('You must be logged in to view your profile.');
       return;
@@ -40,13 +42,18 @@ function Main() {
         });
         setUpdatedUser1(response.data);
         localStorage.setItem('username', response.data.username);
+        localStorage.setItem('profilePicture', response.data.profilePicture);
+        // Decode the base64 image
+        const decodedImage = `data:image/png;base64,${response.data.profilePicture}`;
+        setImg(decodedImage);
       } catch (error) {
         setError('Failed to fetch user profile. Please try again.');
       }
     };
 
     fetchUser();
-  }, []);
+  }, [token, userId]);
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
 
@@ -68,262 +75,101 @@ function Main() {
   return (
     <>
       <header>
-      <div className="container-fluid">
-  <div className="row flex-nowrap">
-    {/* Sidebar */}
-    <div
-      className={`col-auto ${isCollapsed ? "col-2" : "col-md-2"} px-sm-1 px-0 bg-light sidebar`}
-    >
-      <div className="d-flex flex-column align-items-center align-items-sm-start px-3 pt-3 min-vh-100">
-        {/* Profile Section */}
-        <div className="dropdown pb-4 w-100 text-center text-sm-start">
-          <a
-            href="#"
-            className="d-flex align-items-center text-decoration-none"
-            onClick={() => navigateTo("Mook/Profile")}
-            aria-expanded="false"
-          >
-            <img
-              src={
-                user1.profilePicture ||
-                "https://bootdey.com/img/Content/avatar/avatar7.png"
-              }
-              alt={user1.username}
-              className="rounded-circle"
-              width="50"
-              height="50"
-            />
-            <span className={`ms-2 d-none d-sm-inline ${isCollapsed ? "d-none" : ""}`}>
-              {user1.username}
-            </span>
-          </a>
-          <hr />
+        <div className="">
+          <div className="row flex-nowrap display-absolute">
+            {/* Sidebar */}
+            <div id="nav-bar" className={`col-auto ${isCollapsed ? "collapsed px-sm-1 px-0 bg-light sidebar" : "px-sm-1 px-0 bg-light sidebar"}`}>
+              {/* <input id="nav-toggle" type="checkbox" /> */}
+              <div id="nav-header">
+                
+                <hr />
+              </div>
+              <div id="nav-content">
+                <div className="nav-button" onClick={() => navigateTo("Mook/Home")}>
+                  <i className="fas fa-home"></i><span className={`${isCollapsed ? "d-none" : ""}`}>Home</span>
+                </div>
+                <div className="nav-button" onClick={() => navigateTo("Mook/Profile")}>
+                  <i className="fas fa-palette"></i><span className={`${isCollapsed ? "d-none" : ""}`}>Profile</span>
+                </div>
+                <div className="nav-button" onClick={() => navigateTo("Mook/message")}>
+                  <i className="fas fa-envelope"></i><span className={`${isCollapsed ? "d-none" : ""}`}>Message</span>
+                </div>
+                  <div className="nav-button" onClick={() => navigateTo("Mook/usermook")}>
+                    <i className="fas fa-thumbtack"></i><span className={`${isCollapsed ? "d-none" : ""}`}>Mook</span>
+                  </div>
+                {user1.isAdmin && (
+                  <div className="nav-button" onClick={() => navigateTo("Mook/userlist")}>
+                    <i className="fas fa-list"></i><span className={`${isCollapsed ? "d-none" : ""}`}>User List</span>
+                  </div>
+                )}
+                <hr />
+                <div className="nav-button" onClick={handleLogout}>
+                  <i className="fas fa-sign-out-alt"></i><span className={`${isCollapsed ? "d-none" : ""}`}>Sign Out</span>
+                </div>
+              </div>
+              <input id="nav-footer-toggle" type="checkbox" />
+              <div id="nav-footer">
+                <div id="nav-footer-heading">
+                  <div id="nav-footer-avatar">
+                    <img src={profilePicture || "https://bootdey.com/img/Content/avatar/avatar7.png"} alt={user1.username} />
+                  </div>
+                  <div id="nav-footer-titlebox">
+                    <a id="nav-footer-title" href="https://codepen.io/uahnbu/pens/public" target="_blank" rel="noopener noreferrer">
+                      {user1.username}
+                    </a>
+                    <span id="nav-footer-subtitle">{user1.isAdmin ? "Admin" : "User"}</span>
+                  </div>
+                  <label htmlFor="nav-footer-toggle">
+                    <i className="fas fa-caret-up"></i>
+                  </label>
+                </div>
+                <div id="nav-footer-content">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div className={`col py-3 main-content ${isCollapsed ? "collapsed" : ""}`}>
+              <nav
+                id="main-navbar"
+                className="navbar navbar-expand-lg"
+              >
+                <div className="container-fluid">
+                  <a className="navbar-brand" href="/">
+                    <h1>Mook</h1>
+                  </a>
+                  <form className="d-none d-md-flex input-group w-auto my-auto">
+                    <input
+                      autoComplete="off"
+                      type="search"
+                      className="form-control rounded"
+                      placeholder="Search"
+                      style={{ minWidth: "225px" }}
+                    />
+                    <span className="input-group-text border-0">
+                      <i className="fas fa-search"></i>
+                    </span>
+                  </form>
+                </div>
+              </nav>
+              <div className={`${isCollapsed ? "containerr" : "containerrr"}`}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/message" element={<ChatCard />} />
+                  {user1.isAdmin && <Route path="/userlist" element={<Usersetting />} />}
+                  <Route path="/Profile" element={<Profile />} />
+                  <Route path="/UserProfile/:id" element={<UserProfile />} />
+                  <Route path="/Usermook" element={<Mook />} />
+                </Routes>
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* Navigation Links */}
-        <ul className="nav nav-pills flex-column mb-sm-auto mb-0">
-          <li className="nav-item">
-            <a
-              className="nav-link text-dark d-flex align-items-center px-2"
-              onClick={() => navigateTo("Mook/profile")}
-            >
-              <i className="bi bi-people fs-5 me-2"></i>
-              <span className={`${isCollapsed ? "d-none" : ""}`}>Profile</span>
-            </a>
-          </li>
-          <li className="nav-item">
-            <a
-              className="nav-link text-dark d-flex align-items-center px-2"
-              onClick={() => navigateTo("Mook/message")}
-            >
-              <i className="bi bi-envelope fs-5 me-2"></i>
-              <span className={`${isCollapsed ? "d-none" : ""}`}>Message</span>
-            </a>
-          </li>
-          <li className="nav-item">
-            <a
-              className="nav-link text-dark d-flex align-items-center px-2"
-              onClick={() => navigateTo("Mook/usermook")}
-            >
-              <i className="bi bi-people fs-5 me-2"></i>
-              <span className={`${isCollapsed ? "d-none" : ""}`}>Mook</span>
-            </a>
-          </li>
-          <li className="nav-item">
-            <a
-              className="nav-link text-dark d-flex align-items-center px-2"
-              onClick={() => navigateTo("Mook/userlist")}
-            >
-              <i className="bi bi-list fs-5 me-2"></i>
-              <span className={`${isCollapsed ? "d-none" : ""}`}>User List</span>
-            </a>
-          </li>
-        </ul>
-
-        {/* Logout Button */}
-        <div className="mt-auto text-center w-100">
-          <button
-            className="btn btn-outline-dark d-sm-none"
-            onClick={toggleSidebar}
-          >
-            {isCollapsed ? ">" : "<"}
-          </button>
-          <a
-            className="btn btn-danger text-white w-100 mt-3"
-            onClick={handleLogout}
-          >
-            Sign Out
-          </a>
-        </div>
-      </div>
-    </div>
-
-    {/* Main Content */}
-    <div className="col py-3">
-      <nav
-        id="main-navbar"
-        className="navbar navbar-expand-lg"
-        style={{ backgroundColor: "#d2e0eb" }}
-      >
-        <div className="container-fluid">
-          <a className="navbar-brand" href="/">
-            <h1>Mook</h1>
-          </a>
-          <form className="d-none d-md-flex input-group w-auto my-auto">
-            <input
-              autoComplete="off"
-              type="search"
-              className="form-control rounded"
-              placeholder="Search"
-              style={{ minWidth: "225px" }}
-            />
-            <span className="input-group-text border-0">
-              <i className="fas fa-search"></i>
-            </span>
-          </form>
-        </div>
-      </nav>
-      <div className="containerr">
-        <Routes>
-          <Route path="/" element={<ChatCard />} />
-          <Route path="/message" element={<ChatCard />} />
-          <Route path="/userlist" element={<Usersetting />} />
-          <Route path="/Profile" element={<Profile />} />
-          <Route path="/Usermook" element={<Mook />} />
-        </Routes>
-      </div>
-    </div>
-  </div>
-</div>
-
       </header>
     </>
   );
 }
 
 export default Main;
-
-
-
-// import React, { useState } from "react";
-// import { useNavigate } from 'react-router-dom';
-// import Usersetting from "../Main/Component/usersetting";
-// import ChatCard from "../Main/Component/ChatCard";
-// import Profile from "../Main/Component/Profile";
-// import Mook from "../Main/Component/Mook";
-// import Editor from "./Component/Editor";
-// import '@fortawesome/fontawesome-free/css/all.min.css';
-// import { Route, Routes } from "react-router-dom";
-// import "../Main/index.css";
-// function Main({ selectedMenu, handleSelectMenu }) {
-//   const [isCollapsed, setIsCollapsed] = useState(false);
-//   const navigate = useNavigate();
-
-//   const toggleSidebar = () => {
-//     setIsCollapsed(!isCollapsed);
-//   };
-
-//   const navigateTo = (menu) => {
-//     navigate(`/${menu}`);
-//   };
-//   const handlelogout = () =>{
-//     localStorage.removeItem("token");
-//     localStorage.removeItem("user");
-//     navigate("/login");
-//     console.log('salut');
-//   }
-
-//   return (
-//     <>
-//       <header>
-//         <div className="container-fluid">
-//           <div className="row flex-nowrap">
-//             <div className={`col-auto ${isCollapsed ? "col-2" : "col-md-2"} px-sm-1 px-0 bg-light-blue sidebar`}>
-//               <div className="d-flex flex-column align-items-center align-items-sm-start px-4 pt-2 min-vh-100 op">
-//                 <div className="dropdown pb-4 w-100">
-//                   <a href="#" className="d-flex align-items-center text-dark text-decoration-none " onClick={() => navigateTo('Mook/Profile')} aria-expanded="false">
-//                     <img src="https://github.com/mdo.png" alt="User" width="30" height="30" className="rounded-circle" />
-//                     <span className={`d-none d-sm-inline mx-1 ${isCollapsed ? "d-none" : ""}`}>User</span>
-//                   </a>
-//                 </div>
-
-//                 <div className="flex-grow-1 d-flex flex-column justify-content-center">
-//                   <ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
-//                   <li>
-//                       <a className="nav-link px-0 align-middle text-dark" onClick={() => navigateTo('Mook/Profile')}>
-//                         <i className="fs-4 bi-people"></i>
-//                         <span className={`ms-1 ${isCollapsed ? "d-none" : ""}`}>Profile</span>
-//                       </a>
-//                     </li>
-//                     <li className="nav-item">
-//                       <a className="nav-link align-middle px-0 text-dark" onClick={() => navigateTo('Mook/message')}>
-//                         <i className="fs-4 bi-house"></i>
-//                         <span className={`ms-1 ${isCollapsed ? "d-none" : ""}`}>Message</span>
-//                       </a>
-//                     </li>
-//                     <li>
-//                       <a className="nav-link px-0 align-middle text-dark" onClick={() => navigateTo('Mook/Usermook')}>
-//                         <i className="fs-4 bi-people"></i>
-//                         <span className={`ms-1 ${isCollapsed ? "d-none" : ""}`}>Mook</span>
-//                       </a>
-//                     </li>
-//                     {<li>
-//                       <a className="nav-link px-0 align-middle text-dark" onClick={() => navigateTo('Mook/userlist')}>
-//                         <i className="fs-4 bi-people"></i>
-//                         <span className={`ms-1 ${isCollapsed ? "d-none" : ""}`}>User List</span>
-//                       </a>
-//                     </li>}
-
-//                   </ul>
-//                 </div>
-                
-
-                
-//                 <div className="mb-2 d-block">
-//                     <button className="btn btn-outline-dark  d-sm-none " onClick={toggleSidebar}>
-//                       {isCollapsed ? '>' : '<'}
-//                     </button>
-//                     <ul className="text-small rounded-3 py-2 px-3">
-
-//                     <li>
-//                       <a className="text-danger text-decoration-none d-block py-1 px-2" onClick={handlelogout}>
-//                         Sign out
-//                       </a>
-//                     </li>
-//               </ul>
-//                 </div>
-//               </div>
-//             </div>
-
-//             <div className="col py-3">
-//               <nav id="main-navbar" className="navbar navbar-expand-lg" style={{ backgroundColor: '#d2e0eb' }}>
-//                 <div className="container-fluid">
-//                   <a className="navbar-brand" href="/">
-//                     <h1>Mook.mg</h1>
-//                   </a>
-//                   <form className="d-none d-md-flex input-group w-auto my-auto">
-//                     <input autoComplete="off" type="search" className="form-control rounded" placeholder='Search' style={{ minWidth: "225px" }} />
-//                     <span className="input-group-text border-0">
-//                       <i className="fas fa-search"></i>
-//                     </span>
-//                   </form>
-//                 </div>
-//               </nav>
-//               <div className="containerr">
-//                 <Routes>
-//                   <Route path="/" element={<ChatCard />} />
-//                   <Route path="/message" element={<ChatCard />} />
-//                   <Route path="/userlist" element={<Usersetting/>}/>
-//                   <Route path="Profile" element={<Profile />} />
-//                   <Route path="Usermook" element={<Mook />} />
-//                 </Routes>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </header>
-//     </>
-//   );
-// }
-
-// export default Main;

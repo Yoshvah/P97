@@ -1,20 +1,19 @@
 module.exports = {
+  // ... other configurations
   module: {
     rules: [
       {
-        test: /\.m?js$/,
+        test: /\.mjs$/,
+        include: /node_modules/,
+        type: 'javascript/auto'
+      },
+      {
+        test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],
-            plugins: [
-              '@babel/plugin-syntax-nullish-coalescing-operator',
-              '@babel/plugin-syntax-optional-chaining',
-            ],
-          },
-        },
-      },
-    ],
-  },
-};
+          loader: 'babel-loader'
+        }
+      }
+    ]
+  }
+}

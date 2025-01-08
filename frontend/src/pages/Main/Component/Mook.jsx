@@ -1,47 +1,21 @@
-import { useState, useEffect } from 'react';
-import { Button } from 'react-bootstrap';
-import { EditorContent, useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
-import Placeholder from '@tiptap/extension-placeholder';
-import TextAlign from '@tiptap/extension-text-align';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import '../Style/Mook.css';
-
-const EditorComponent = ({ editor }) => (
-  <div id="editorjs" className="editor-container">
-    {editor ? <EditorContent editor={editor} /> : <p>Loading editor...</p>}
-  </div>
-);
+import { Form, Button, Card, Container, Row, Col, Spinner } from 'react-bootstrap';
+import axios from 'axios';
 
 const Mook = () => {
   const [mooks, setMooks] = useState([]);
   const [selectedMook, setSelectedMook] = useState(null);
   const [newTitle, setNewTitle] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(''); // Store content as a string
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [showChat, setShowChat] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isAddingMook, setIsAddingMook] = useState(false);
   const token = localStorage.getItem('token');
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      Image,
-      Link,
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      Placeholder.configure({
-        placeholder: 'Start writing your note here...',
-      }),
-    ],
-    content: selectedMook?.content || '<p>Start writing your note...</p>',
-    onUpdate: ({ editor }) => {
-      setContent(editor.getHTML());
-    },
-  });
+  const username = localStorage.getItem('username'); // Replace with actual username logic
 
   useEffect(() => {
     const fetchMook = async () => {
@@ -51,13 +25,13 @@ const Mook = () => {
         });
         setMooks(response.data);
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error fetching mooks:', error);
       }
     };
     fetchMook();
   }, [token]);
 
-  const handleSaveCard = async () => {
+  const handleSaveCard = async (newTitle, isPrivate, contentString, username, createdAt) => {
     if (!newTitle.trim()) {
       alert('Title cannot be empty!');
       return;
@@ -66,37 +40,54 @@ const Mook = () => {
     const newCard = {
       title: newTitle,
       isPrivate,
-      contentData: content,
+      contentData: contentString,
+      creatorId: username,
+      createdAt: createdAt
     };
 
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/register/mook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newCard),
+      const response = await axios.post('http://localhost:8000/api/register/mook', newCard, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
       });
 
-      if (!response.ok) {
+      if (response.status !== 201) {
         throw new Error('Failed to save Mook. Please try again.');
       }
 
-      const data = await response.json();
+      const data = response.data;
 
       setMooks((prevMooks) => [
         ...prevMooks,
-        { ...newCard, id: data.mook_id, shareLink: data.shareLink },
+        { ...newCard, id: data.id, shareLink: data.shareLink },
       ]);
 
       setSelectedMook(null);
       setNewTitle('');
-      setContent('');
+      setContent(''); // Reset content to an empty string
+      setIsAddingMook(false);
       alert(`Note saved successfully! Share Link: ${data.shareLink}`);
     } catch (error) {
       console.error('Error saving Mook:', error);
       alert('Error saving note. Please check your connection and try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteMook = async (id) => {
+    try {
+      const response = await axios.delete(`http://localhost:8000/api/mooks/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.status === 200) {
+        setMooks(mooks.filter(mook => mook.id !== id));
+      }
+    } catch (error) {
+      console.error('Error deleting mook:', error);
     }
   };
 
@@ -113,15 +104,13 @@ const Mook = () => {
     setNewMessage('');
 
     try {
-      const response = await fetch('/api/AIchat', {
-        method: 'POST',
+      const response = await axios.post('/api/AIchat', { message: newMessage }, {
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: newMessage }),
       });
 
-      if (!response.ok) throw new Error('Failed to fetch AI response');
+      if (response.status !== 200) throw new Error('Failed to fetch AI response');
 
-      const data = await response.json();
+      const data = response.data;
       const aiResponse = {
         sender: 'ai',
         text: data.message,
@@ -135,142 +124,147 @@ const Mook = () => {
   };
 
   return (
-    <div className="main">
-      {!selectedMook && (
-        <div className="button-container">
+    <div className="main-container">
+      {!selectedMook && !isAddingMook && (
+        <Button
+          variant="primary"
+          className="add-new-note-btn"
+          onClick={() => setIsAddingMook(true)}
+        >
+          Add New Note
+        </Button>
+      )}
+      {loading && <Spinner animation="border" role="status"><span className="visually-hidden">Loading...</span></Spinner>}
+
+      {!selectedMook && !isAddingMook && mooks.length > 0 && (
+        <Row className="mt-4 mook-cards">
+          {mooks.map((mookItem, index) => (
+            <Col key={index} md={4} className="mb-4">
+              <Card
+                className="mook-card"
+                onClick={() => {
+                  setSelectedMook(mookItem);
+                  setNewTitle(mookItem.title);
+                  setIsPrivate(mookItem.isPrivate || false);
+                  setContent(mookItem.contentData || ''); // Set content as a string
+                }}
+              >
+                <Card.Img
+                  variant="top"
+                  src="https://img.freepik.com/free-photo/nature-design-with-bokeh-effect_1048-1882.jpg"
+                  alt="mook"
+                />
+                <Card.Body>
+                  <Card.Title>{mookItem.title}</Card.Title>
+                  <Card.Text
+                    dangerouslySetInnerHTML={{
+                      __html: mookItem.contentData ? mookItem.contentData : 'No description available',
+                    }}
+                  />
+                  <p><strong>Created At:</strong> {mookItem.createdAt}</p>
+                  <p><strong>Updated At:</strong> {mookItem.updatedAt || 'N/A'}</p>
+                  <p><strong>Creator ID:</strong> {mookItem.creatorId}</p>
+                  <Button variant="primary" onClick={() => handleDeleteMook(mookItem.id)}>
+                    Delete
+                  </Button>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
+
+      {(selectedMook || isAddingMook) && (
+        <div className="mook-container">
           <Button
-            variant="outline-dark"
-            id="new-item"
+            variant="secondary"
+            className="back-btn"
             onClick={() => {
-              setSelectedMook({});
+              setSelectedMook(null);
+              setIsAddingMook(false);
               setNewTitle('');
               setIsPrivate(false);
-              editor?.commands.clearContent();
+              setContent(''); // Reset content to an empty string
             }}
           >
-            Add New Note
+            Back
           </Button>
-        </div>
-      )}
-      {loading && <div className="loader">Loading...</div>}
-
-      {!selectedMook && mooks.length > 0 && (
-        <div className="container-fluid mt-4">
-          <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            {mooks.map((mookItem, index) => (
-              <div className="col" key={index}>
-                <div
-                  className="card shadow-sm"
-                  onClick={() => {
-                    setSelectedMook(mookItem);
-                    setNewTitle(mookItem.title);
-                    setIsPrivate(mookItem.isPrivate || false);
-                    editor?.commands.setContent(mookItem.content || '');
-                  }}
-                >
-                  <img
-                    src="https://img.freepik.com/free-photo/nature-design-with-bokeh-effect_1048-1882.jpg"
-                    alt="mook"
-                    className="card-img-top"
-                  />
-                  <div className="card-body">
-                    <h2>{mookItem.title}</h2>
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: mookItem.content || 'No description available',
-                      }}
-                    ></div>
-                    <a href="#" className="btn btn-primary">
-                      Find out more
-                      <span className="material-icons">arrow_right_alt</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="mook-header">
+            <Form.Control
+              type="text"
+              placeholder="Enter title"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+            />
+            <Form.Check
+              type="checkbox"
+              label="Private"
+              checked={isPrivate}
+              onChange={(e) => setIsPrivate(e.target.checked)}
+            />
           </div>
-        </div>
-      )}
-
-      {selectedMook && (
-        <div className="editor-form">
+          <textarea
+            className="mook-editor"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
           <div className="form-actions">
-            <button className="btn primary" onClick={handleSaveCard}>
+            <Button variant="primary" onClick={() => handleSaveCard(newTitle, isPrivate, content, username, new Date().toISOString())}>
               Save
-            </button>
-            <button
-              className="btn secondary"
+            </Button>
+            <Button
+              variant="secondary"
               onClick={() => {
                 setSelectedMook(null);
                 setNewTitle('');
-                editor?.commands.clearContent();
+                setIsPrivate(false);
+                setContent(''); // Reset content to an empty string
               }}
             >
               Cancel
-            </button>
+            </Button>
           </div>
-          <input
-            type="text"
-            id="note-title"
-            className="note-title-input"
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            placeholder="Enter title"
-          />
-          <div>
-            <label>
-              <input
-                type="checkbox"
-                checked={isPrivate}
-                onChange={(e) => setIsPrivate(e.target.checked)}
-              />{' '}
-              Private
-            </label>
+          <div className="floating-chat-container">
+            <div className="floating-chat-button" onClick={() => setShowChat(!showChat)}>
+              <i className="fas fa-robot"></i>
+            </div>
+            {showChat && (
+              <div className="chat-box">
+                <h3 className="chat-title">Chat with AI</h3>
+                <hr />
+                <ul className="chat-messages-list">
+                  {messages.map((msg, index) => (
+                    <li key={index} className={msg.sender === 'user' ? 'chat-user-message' : 'chat-ai-message'}>
+                      <div className="chat-profile">
+                        {msg.sender === 'user' ? (
+                          <i className="fas fa-user chat-profile-icon"></i>
+                        ) : (
+                          <i className="fas fa-robot chat-profile-icon"></i>
+                        )}
+                      </div>
+                      <div className="chat-message-content">
+                        <span className="chat-message-text">{msg.text}</span>
+                        <span className="chat-timestamp">{msg.timestamp}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <Form className="chat-input-section">
+                  <Form.Control
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type a message"
+                  />
+                  <Button variant="primary" onClick={handleSendMessage}>
+                    <i className="fas fa-paper-plane"></i>
+                  </Button>
+                </Form>
+              </div>
+            )}
           </div>
-          <EditorComponent editor={editor} />
         </div>
       )}
-
-      <div className="floating-container">
-        <div className="floating-button" onClick={() => setShowChat(!showChat)}>
-          <i className="fas fa-robot"></i>
-        </div>
-        {showChat && (
-          <div className="chat-container">
-            <h3 className="AItitle">Chat with AI</h3>
-            <hr />
-            <ul className="chat-messages">
-              {messages.map((msg, index) => (
-                <li key={index} className={msg.sender === 'user' ? 'chat-user' : 'chat-ai'}>
-                  <div className="chat-profile">
-                    {msg.sender === 'user' ? (
-                      <i className="fas fa-user chat-profile-icon"></i>
-                    ) : (
-                      <i className="fas fa-robot chat-profile-icon"></i>
-                    )}
-                  </div>
-                  <div className="chat-message">
-                    <span className="chat-message-text">{msg.text}</span>
-                    <span className="chat-timestamp">{msg.timestamp}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div className="chat-input-section">
-              <input
-                type="text"
-                className="chat-input"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type a message"
-              />
-              <button onClick={handleSendMessage} className="send-button">
-                <i className="fas fa-paper-plane"></i>
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 };

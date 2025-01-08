@@ -7,11 +7,9 @@ const Footer = () => {
   return (
     <footer className="footer-container">
       <p>
-        &copy; {new Date().getFullYear()} All Rights Reserved by <strong>Yo</strong>. Built with{" "}
-        <FontAwesomeIcon icon={faHeart} style={{ color: "red" }} /> by{" "}
-        <a href="https://yourwebsite.com" target="_blank" rel="noopener noreferrer">
-          YourName
-        </a>.
+        &copy; {new Date().getFullYear()} {" "} Made with{" "}
+        <FontAwesomeIcon icon={faHeart} style={{ color: "red" }} /> {" "}
+        
       </p>
     </footer>
   );

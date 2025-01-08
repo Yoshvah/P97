@@ -30,7 +30,7 @@
 .form-container:before,
 .form-container:after {
   content: '';
-  background-color: #4E4C97;
+  background-color: darkblue;
   height: 50%;
   width: 4px;
   position: absolute;
@@ -46,7 +46,7 @@
 }
 
 .form-container .title {
-  color: #4E4C97;
+  color: darkblue;
   font-size: 25px;
   font-weight: 700;
   text-transform: capitalize;
@@ -59,7 +59,7 @@
 }
 
 .form-group input {
-  color: #4E4C97;
+  color: darkblue;
   background: #F7F8F9;
   font-size: 14px;
   font-weight: 500;
@@ -90,7 +90,7 @@
 
 .submit-btn {
   color: #fff;
-  background-color: #4E4C97;
+  background-color: darkblue;
   font-size: 13px;
   font-weight: 600;
   padding: 11px;
@@ -107,7 +107,7 @@
 
 .forgot-password {
   display: inline-block;
-  color: #4E4C97;
+  color: darkblue;
   font-size: 14px;
   margin-top: 15px;
   text-decoration: none;
@@ -124,7 +124,7 @@
 }
 
 .signup-link {
-  color: #4E4C97;
+  color: darkblue;
   text-decoration: none;
 }
 

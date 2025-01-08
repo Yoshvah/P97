@@ -2,12 +2,9 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\MookRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 
 /**
- * @ORM\Entity(repositoryClass=MookRepository::class)
+ * @ORM\Entity(repositoryClass="App\Repository\MookRepository")
  */
 class Mook
 {
@@ -16,45 +13,44 @@ class Mook
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private ?int $id = null;
+    private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private ?string $title = null;
-
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
-    private array $contentData = [];
+    private $title;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private bool $isPrivate = true;
+    private $isPrivate;
 
     /**
-     * @ORM\Column(type="string", length=5, unique=true, nullable=true)
+     * @ORM\Column(type="text")
      */
-    private ?string $shareLink = null;
+    private $contentData;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $creatorId;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private ?\DateTimeInterface $createdAt = null;
+    private $updatedAt;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private ?\DateTimeInterface $updatedAt = null;
+    private $shareLink;
 
-    public function __construct()
-    {
-        $this->createdAt = new \DateTimeImmutable();
-        $this->updatedAt = new \DateTimeImmutable();
-    }
-
-    // Getters and Setters...
+    // Getters and setters
 
     public function getId(): ?int
     {
@@ -69,22 +65,11 @@ class Mook
     public function setTitle(string $title): self
     {
         $this->title = $title;
+
         return $this;
     }
 
-    public function getContentData(): array
-    {
-        return $this->contentData;
-    }
-
-    public function setContentData(array $contentData): self
-    {
-        $this->contentData = $contentData;
-        $this->updatedAt = new \DateTimeImmutable();
-        return $this;
-    }
-
-    public function isPrivate(): bool
+    public function isPrivate(): ?bool
     {
         return $this->isPrivate;
     }
@@ -92,17 +77,31 @@ class Mook
     public function setIsPrivate(bool $isPrivate): self
     {
         $this->isPrivate = $isPrivate;
+
         return $this;
     }
 
-    public function getShareLink(): ?string
+    public function getContentData(): ?string
     {
-        return $this->shareLink;
+        return $this->contentData;
     }
 
-    public function generateShareLink(): self
+    public function setContentData(string $contentData): self
     {
-        $this->shareLink = substr(md5(uniqid()), 0, 5); // Generates a unique 5-character string
+        $this->contentData = $contentData;
+
+        return $this;
+    }
+
+    public function getCreatorId(): ?string
+    {
+        return $this->creatorId;
+    }
+
+    public function setCreatorId(string $creatorId): self
+    {
+        $this->creatorId = $creatorId;
+
         return $this;
     }
 
@@ -111,8 +110,41 @@ class Mook
         return $this->createdAt;
     }
 
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
     public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getShareLink(): ?string
+    {
+        return $this->shareLink;
+    }
+
+    public function setShareLink(?string $shareLink): self
+    {
+        $this->shareLink = $shareLink;
+
+        return $this;
+    }
+
+    public function generateShareLink(): self
+    {
+        $this->shareLink = uniqid('share_', true);
+
+        return $this;
     }
 }

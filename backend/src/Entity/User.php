@@ -49,11 +49,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
     private $plainPassword;
 
     /**
-     * @ORM\OneToMany(targetEntity=Mook::class, mappedBy="owner", cascade={"persist", "remove"})
-     */
-    private $mooks;
-
-    /**
      * @ORM\Column(type="date", nullable=true)
      */
     private ?\DateTimeInterface $birthday = null;
@@ -82,22 +77,109 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private ?string $profilePicture = null;
+
     /**
      * @ORM\Column(type="string", length=10, nullable=true)
      */
     private ?string $sexe = null;
-    
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $facebook = null;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $twitter = null;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $instagram = null;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $github = null;
+
+    /**
+     * @ORM\Column(type="json", nullable=true)
+     */
+    private ?array $jobs = [];
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isAdmin = false;
+
+    // Getters and setters for each field
+
+    public function getFacebook(): ?string
+    {
+        return $this->facebook;
+    }
+
+    public function setFacebook(?string $facebook): self
+    {
+        $this->facebook = $facebook;
+        return $this;
+    }
+
+    public function getTwitter(): ?string
+    {
+        return $this->twitter;
+    }
+
+    public function setTwitter(?string $twitter): self
+    {
+        $this->twitter = $twitter;
+        return $this;
+    }
+
+    public function getInstagram(): ?string
+    {
+        return $this->instagram;
+    }
+
+    public function setInstagram(?string $instagram): self
+    {
+        $this->instagram = $instagram;
+        return $this;
+    }
+
+    public function getGithub(): ?string
+    {
+        return $this->github;
+    }
+
+    public function setGithub(?string $github): self
+    {
+        $this->github = $github;
+        return $this;
+    }
+
+    public function getJobs(): ?array
+    {
+        return $this->jobs;
+    }
+
+    public function setJobs(?array $jobs): self
+    {
+        $this->jobs = $jobs;
+        return $this;
+    }
+
     public function getSexe(): ?string
     {
         return $this->sexe;
     }
-    
+
     public function setSexe(?string $sexe): self
     {
         $this->sexe = $sexe;
         return $this;
     }
-
 
     public function __construct()
     {
@@ -132,10 +214,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
 
     public function setEmail(?string $email): self
     {
-    $this->email = $email;
-    return $this;
+        $this->email = $email;
+        return $this;
     }
-
 
     public function getRoles(): array
     {
@@ -267,8 +348,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
         return $this;
     }
 
+    public function getIsAdmin(): bool
+    {
+        return $this->isAdmin;
+    }
 
-
+    public function setIsAdmin(bool $isAdmin): self
+    {
+        $this->isAdmin = $isAdmin;
+        return $this;
+    }
 
     public function jsonSerialize()
     {
@@ -282,6 +371,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface, JsonSer
             "phone" => $this->phone,
             "address" => $this->address,
             "profilePicture" => $this->profilePicture,
+            "sexe" => $this->sexe,
+            "facebook" => $this->facebook,
+            "twitter" => $this->twitter,
+            "instagram" => $this->instagram,
+            "github" => $this->github,
+            "jobs" => $this->jobs,
+            "isAdmin" => $this->isAdmin,
         ];
     }
 

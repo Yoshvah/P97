@@ -1,3 +1,5 @@
+# config/services.yaml
+
 # This file is the entry point to configure your own services.
 # Files in the packages/ subdirectory configure your dependencies.
 
@@ -7,6 +9,8 @@ parameters:
     images_directory: '%kernel.project_dir%/public/uploads/profile_pictures'
 
 services:
+# config/services.yaml
+
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
@@ -23,26 +27,23 @@ services:
             - '../src/Migrations/'
             - '../src/Tests/'
 
+    # Service for handling image uploads
     App\Service\ImageUploader:
         arguments:
-            $targetDirectory: '%images_directory%'
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
-    # MookController
+            $targetDirectory: 
+            - '%images_directory%'
+            - '%kernel.project_dir%/public/uploads/profile_pictures'
+
+
+    # Controllers
+    App\Controller\UsersController:
+        tags: ['controller.service_arguments']
+
     App\Controller\MookController:
         tags: ['controller.service_arguments']
 
-    # UserController
-    App\Controller\UserController:
-        tags: ['controller.service_arguments']
-
-    # ChatController
     App\Controller\ChatController:
         tags: ['controller.service_arguments']
 
-    # AiChatController
     App\Controller\AiChatController:
         tags: ['controller.service_arguments']
-    # UsersChatController
-        # App\Controller\UsersController:
-        #     tags: ['controller.service_arguments']
