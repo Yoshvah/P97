@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\Mook;
@@ -9,14 +8,17 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class MookController extends AbstractController
 {
     private $repository;
+    private $httpClient;
 
-    public function __construct(MookRepository $repository)
+    public function __construct(MookRepository $repository, HttpClientInterface $httpClient)
     {
         $this->repository = $repository;
+        $this->httpClient = $httpClient;
     }
 
     /**
@@ -129,5 +131,38 @@ class MookController extends AbstractController
             'updatedAt' => $mook->getUpdatedAt()->format('Y-m-d H:i:s'),
             'creatorId' => $mook->getCreatorId(),
         ], Response::HTTP_OK);
+    }
+
+    /**
+     * @Route("/api/AIchat", name="ai_chat", methods={"POST"})
+     */
+    public function aiChat(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        if (!isset($data['message'])) {
+            return new JsonResponse(['error' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/engines/davinci/completions', [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => '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', // Replace with your actual OpenAI API key
+                ],
+                'json' => [
+                    'prompt' => $data['message'],
+                    'max_tokens' => 150,
+                ],
+            ]);
+
+            $content = $response->toArray();
+
+            return new JsonResponse([
+                'message' => $content['choices'][0]['text'],
+            ], Response::HTTP_OK);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Failed to fetch AI response: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }
