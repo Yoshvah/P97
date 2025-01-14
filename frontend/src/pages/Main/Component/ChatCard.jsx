@@ -145,7 +145,7 @@ const ChatCard = () => {
                 <li
                   key={index}
                   className={`message-item ${
-                    msg.sender === username ? 'message-left' : 'message-right'
+                    msg.sender === username ? 'message-right' : 'message-left'
                   }`}
                 >
                   <div className="message-bubble"> {msg.content} Sender:{msg.sender} Me:{username}</div>
@@ -338,3 +338,4 @@ export default ChatCard;
 // };
 
 // export default ChatCard;
+

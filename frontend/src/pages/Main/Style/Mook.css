@@ -7,6 +7,11 @@ body {
   padding: 0;
 }
 
+.ScrollContent{
+  max-height: 30px; /* Set a maximum height for the text */
+  overflow-y: auto;  /* Enable vertical scrolling if content overflows */
+  padding-right: 3px; 
+}
 /* Add New Note Button */
 .add-new-note-btn {
   padding: 10px 20px;
@@ -48,6 +53,7 @@ body {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   background-color: #fff;
   border: 1px solid #e0e0e0;
+  max-width: 100%;
 }
 
 .mook-card:hover {
@@ -67,6 +73,8 @@ body {
 .mook-card-body {
   padding: 20px;
   background-color: #fff;
+  max-height: 200px; /* Limit the height to enable scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
 }
 
 .mook-card h2 {
@@ -214,6 +222,8 @@ body {
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1001;
+  max-height: 400px; /* Limit the height to enable scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
 }
 
 .chat-title {
@@ -223,8 +233,8 @@ body {
 }
 
 .chat-messages-list {
-  max-height: 300px;
-  overflow-y: auto;
+  max-height: 250px; /* Limit the height to enable scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
   margin-bottom: 15px;
   list-style: none;
   padding: 0;

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\Mook;
@@ -8,16 +9,19 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class MookController extends AbstractController
 {
     private $repository;
+    private $logger;
     private $httpClient;
 
-    public function __construct(MookRepository $repository, HttpClientInterface $httpClient)
+    public function __construct(MookRepository $repository, LoggerInterface $logger, HttpClientInterface $httpClient)
     {
         $this->repository = $repository;
+        $this->logger = $logger;
         $this->httpClient = $httpClient;
     }
 
@@ -32,7 +36,7 @@ class MookController extends AbstractController
                 'id' => $mook->getId(),
                 'title' => $mook->getTitle(),
                 'isPrivate' => $mook->isPrivate(),
-                'contentData' => $mook->getContentData(), // Include contentData
+                'contentData' => $mook->getContentData(),
                 'shareLink' => $mook->getShareLink(),
                 'createdAt' => $mook->getCreatedAt() ? $mook->getCreatedAt()->format('Y-m-d H:i:s') : null,
                 'updatedAt' => $mook->getUpdatedAt() ? $mook->getUpdatedAt()->format('Y-m-d H:i:s') : null,
@@ -57,7 +61,7 @@ class MookController extends AbstractController
         $mook = new Mook();
         $mook->setTitle($data['title']);
         $mook->setIsPrivate($data['isPrivate']);
-        $mook->setContentData($data['contentData']); // Ensure contentData is a string
+        $mook->setContentData($data['contentData']);
         $mook->setCreatorId($data['creatorId']);
         $mook->setCreatedAt(new \DateTime($data['createdAt']));
         $mook->generateShareLink();
@@ -70,7 +74,7 @@ class MookController extends AbstractController
             'id' => $mook->getId(),
             'title' => $mook->getTitle(),
             'isPrivate' => $mook->isPrivate(),
-            'contentData' => $mook->getContentData(), // Return contentData as a string
+            'contentData' => $mook->getContentData(),
             'shareLink' => $mook->getShareLink(),
             'createdAt' => $mook->getCreatedAt()->format('Y-m-d H:i:s'),
             'updatedAt' => $mook->getUpdatedAt() ? $mook->getUpdatedAt()->format('Y-m-d H:i:s') : null,
@@ -112,7 +116,7 @@ class MookController extends AbstractController
         if (isset($data['title'])) $mook->setTitle($data['title']);
         if (isset($data['isPrivate'])) $mook->setIsPrivate($data['isPrivate']);
         if (isset($data['contentData'])) {
-            $mook->setContentData($data['contentData']); // Ensure contentData is a string
+            $mook->setContentData($data['contentData']);
         }
         if (isset($data['creatorId'])) $mook->setCreatorId($data['creatorId']);
 
@@ -125,7 +129,7 @@ class MookController extends AbstractController
             'id' => $mook->getId(),
             'title' => $mook->getTitle(),
             'isPrivate' => $mook->isPrivate(),
-            'contentData' => $mook->getContentData(), // Return contentData as a string
+            'contentData' => $mook->getContentData(),
             'shareLink' => $mook->getShareLink(),
             'createdAt' => $mook->getCreatedAt()->format('Y-m-d H:i:s'),
             'updatedAt' => $mook->getUpdatedAt()->format('Y-m-d H:i:s'),
@@ -134,35 +138,37 @@ class MookController extends AbstractController
     }
 
     /**
-     * @Route("/api/AIchat", name="ai_chat", methods={"POST"})
-     */
-    public function aiChat(Request $request): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
+ * @Route("/api/AIchat", name="ai_chat", methods={"POST"})
+ */
+public function aiChat(Request $request): JsonResponse
+{
+    $data = json_decode($request->getContent(), true);
 
-        if (!isset($data['message'])) {
-            return new JsonResponse(['error' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
-        }
-
-        try {
-            $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/engines/davinci/completions', [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => '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', // Replace with your actual OpenAI API key
-                ],
-                'json' => [
-                    'prompt' => $data['message'],
-                    'max_tokens' => 150,
-                ],
-            ]);
-
-            $content = $response->toArray();
-
-            return new JsonResponse([
-                'message' => $content['choices'][0]['text'],
-            ], Response::HTTP_OK);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => 'Failed to fetch AI response: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+    if (!isset($data['message'])) {
+        return new JsonResponse(['error' => 'Missing required fields'], Response::HTTP_BAD_REQUEST);
     }
+
+    try {
+        $response = $this->httpClient->request('POST', 'https://api.openai.com/v1/engines/davinci/completions', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer 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',
+            ],
+            'json' => [
+                'prompt' => $data['message'],
+                'max_tokens' => 150,
+            ],
+        ]);
+
+        $content = $response->toArray();
+
+        return new JsonResponse([
+            'message' => $content['choices'][0]['text'],
+        ], Response::HTTP_OK);
+    } catch (\Exception $e) {
+        $this->logger->error('Failed to fetch AI response: ' . $e->getMessage());
+        return new JsonResponse(['error' => 'Failed to fetch AI response: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+}
+
 }

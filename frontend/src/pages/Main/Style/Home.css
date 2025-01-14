@@ -44,12 +44,12 @@
 }
 
 .home-card:hover {
-  transform: scale(1.05);
+  transform: scale(1.005);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .home-card.enlarged {
-  flex: 0 0 40%; /* Increased size for enlarged cards */
+  flex: 0 0 20%; /* Increased size for enlarged cards */
   max-width: 40%;
   margin: auto; /* Center enlarged card */
 }

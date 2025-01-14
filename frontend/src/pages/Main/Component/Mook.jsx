@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../Style/Mook.css';
-import { Form, Button, Card, Container, Row, Col, Spinner } from 'react-bootstrap';
+import { Form, Button, Card, Row, Col, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 
 const Mook = () => {
@@ -8,14 +8,14 @@ const Mook = () => {
   const [selectedMook, setSelectedMook] = useState(null);
   const [newTitle, setNewTitle] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
-  const [content, setContent] = useState(''); // Store content as a string
+  const [content, setContent] = useState('');
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [showChat, setShowChat] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isAddingMook, setIsAddingMook] = useState(false);
   const token = localStorage.getItem('token');
-  const username = localStorage.getItem('username'); // Replace with actual username logic
+  const username = localStorage.getItem('username');
 
   useEffect(() => {
     const fetchMook = async () => {
@@ -31,7 +31,7 @@ const Mook = () => {
     fetchMook();
   }, [token]);
 
-  const handleSaveCard = async (newTitle, isPrivate, contentString, username, createdAt) => {
+  const handleSaveCard = async () => {
     if (!newTitle.trim()) {
       alert('Title cannot be empty!');
       return;
@@ -40,36 +40,58 @@ const Mook = () => {
     const newCard = {
       title: newTitle,
       isPrivate,
-      contentData: contentString,
+      contentData: content,
       creatorId: username,
-      createdAt: createdAt
+      createdAt: new Date().toISOString()
     };
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/api/register/mook', newCard, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+      if (selectedMook) {
+        const response = await axios.put(`http://localhost:8000/api/mooks/${selectedMook.id}`, newCard, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.status !== 200) {
+          throw new Error('Failed to update Mook. Please try again.');
         }
-      });
 
-      if (response.status !== 201) {
-        throw new Error('Failed to save Mook. Please try again.');
+        setMooks((prevMooks) =>
+          prevMooks.map(mook =>
+            mook.id === selectedMook.id ? { ...mook, ...newCard } : mook
+          )
+        );
+
+        alert(`Note updated successfully!`);
+      } else {
+        const response = await axios.post('http://localhost:8000/api/register/mook', newCard, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.status !== 201) {
+          throw new Error('Failed to save Mook. Please try again.');
+        }
+
+        const data = response.data;
+
+        setMooks((prevMooks) => [
+          ...prevMooks,
+          { ...newCard, id: data.id, shareLink: data.shareLink },
+        ]);
+
+        alert(`Note saved successfully! Share Link: ${data.shareLink}`);
       }
-
-      const data = response.data;
-
-      setMooks((prevMooks) => [
-        ...prevMooks,
-        { ...newCard, id: data.id, shareLink: data.shareLink },
-      ]);
 
       setSelectedMook(null);
       setNewTitle('');
-      setContent(''); // Reset content to an empty string
+      setContent('');
       setIsAddingMook(false);
-      alert(`Note saved successfully! Share Link: ${data.shareLink}`);
     } catch (error) {
       console.error('Error saving Mook:', error);
       alert('Error saving note. Please check your connection and try again.');
@@ -102,11 +124,25 @@ const Mook = () => {
     };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setNewMessage('');
+    setLoading(true);
 
     try {
-      const response = await axios.post('/api/AIchat', { message: newMessage }, {
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const Req = "Response this' " + newMessage + "?' According to this ' newTitle:" + newTitle + " isPrivate:"  + isPrivate + ", content:" + content + "'";
+      console.log('Request: ', Req);
+
+      const response = await axios.post('http://localhost:8000/api/AIchat', { message: Req }, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+    });
+    console.log('Token:', token);
+console.log('Request Headers:', {
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${token}`
+});
+
+    
 
       if (response.status !== 200) throw new Error('Failed to fetch AI response');
 
@@ -120,6 +156,9 @@ const Mook = () => {
       setMessages((prevMessages) => [...prevMessages, aiResponse]);
     } catch (error) {
       console.error('Error:', error);
+      alert('Failed to fetch AI response. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -146,7 +185,7 @@ const Mook = () => {
                   setSelectedMook(mookItem);
                   setNewTitle(mookItem.title);
                   setIsPrivate(mookItem.isPrivate || false);
-                  setContent(mookItem.contentData || ''); // Set content as a string
+                  setContent(mookItem.contentData || '');
                 }}
               >
                 <Card.Img
@@ -156,7 +195,7 @@ const Mook = () => {
                 />
                 <Card.Body>
                   <Card.Title>{mookItem.title}</Card.Title>
-                  <Card.Text
+                  <Card.Text className='ScrollContent'
                     dangerouslySetInnerHTML={{
                       __html: mookItem.contentData ? mookItem.contentData : 'No description available',
                     }}
@@ -176,19 +215,6 @@ const Mook = () => {
 
       {(selectedMook || isAddingMook) && (
         <div className="mook-container">
-          <Button
-            variant="secondary"
-            className="back-btn"
-            onClick={() => {
-              setSelectedMook(null);
-              setIsAddingMook(false);
-              setNewTitle('');
-              setIsPrivate(false);
-              setContent(''); // Reset content to an empty string
-            }}
-          >
-            Back
-          </Button>
           <div className="mook-header">
             <Form.Control
               type="text"
@@ -209,16 +235,17 @@ const Mook = () => {
             onChange={(e) => setContent(e.target.value)}
           />
           <div className="form-actions">
-            <Button variant="primary" onClick={() => handleSaveCard(newTitle, isPrivate, content, username, new Date().toISOString())}>
-              Save
+            <Button variant="primary" onClick={handleSaveCard} disabled={loading}>
+              {selectedMook ? 'Update' : 'Save'}
             </Button>
             <Button
               variant="secondary"
               onClick={() => {
                 setSelectedMook(null);
+                setIsAddingMook(false);
                 setNewTitle('');
                 setIsPrivate(false);
-                setContent(''); // Reset content to an empty string
+                setContent('');
               }}
             >
               Cancel
