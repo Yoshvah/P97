@@ -16,6 +16,13 @@ const Mook = () => {
   const [isAddingMook, setIsAddingMook] = useState(false);
   const token = localStorage.getItem('token');
   const username = localStorage.getItem('username');
+if (!token) {
+  console.error('JWT Token not found in localStorage');
+  // Handle the case where the token is not found
+} else {
+  console.log('Token:', token);
+}
+
 
   useEffect(() => {
     const fetchMook = async () => {
